@@ -1,0 +1,23 @@
+{
+  "name": "bim-leaders",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "prebuild": "node scripts/sync-content.mjs",
+    "build": "next build",
+    "start": "next start",
+    "media": "node scripts/make-webp.mjs",
+    "og": "node scripts/make-og.mjs",
+    "logo": "node scripts/make-logo-assets.mjs",
+    "check:responsive": "node scripts/check-responsive.mjs"
+  },
+  "dependencies": {
+    "next": "15.5.4",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.2"
+  }
+}

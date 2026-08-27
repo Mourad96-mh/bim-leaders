@@ -1,0 +1,326 @@
+/* Motifs propres à BIM LEADERS — tout ce que la base de design ne couvrait pas.
+   globals.css garde le système (jetons, boutons, grilles, en-tête, pied de page) ;
+   ce fichier ajoute les composants demandés par le cahier des charges :
+   la chaîne BIM, le processus en étapes, la galerie de réalisations avec filtres
+   et visionneuse, les fiches d'opportunité, les formulaires et le dashboard. */
+
+/* ---------------------------------------------------------------- Badges --- */
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-display); font-weight: 600; font-size: 0.74rem;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 5px 11px; border-radius: 999px; white-space: nowrap;
+}
+.badge--neutral { background: var(--steel-100); color: var(--ink-600); }
+.badge--accent { background: rgba(17,136,204,0.13); color: var(--cyan-600); }
+.badge--warn { background: rgba(214,138,0,0.14); color: #9a6300; }
+.badge--ok { background: rgba(31,139,64,0.14); color: #1f8b40; }
+.badge--onDark { background: rgba(255,255,255,0.14); color: var(--white); }
+.badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* ---------------------------------------------- Chaîne BIM (§6.4 / §10bis) ---
+   Conception → Modélisation → … Une bande de jetons reliés par des flèches, qui
+   se replie en colonne sur mobile (les flèches basculent alors vers le bas). */
+.chain { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 4px; }
+.chain-step {
+  display: inline-flex; align-items: center; gap: 9px;
+  font-family: var(--font-display); font-weight: 600; font-size: 0.9rem;
+  padding: 10px 16px; border-radius: 999px;
+  background: var(--white); color: var(--blue-800);
+  border: 1.5px solid var(--steel-200); box-shadow: var(--shadow-sm);
+}
+.chain-step .chain-n {
+  width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+  background: var(--cyan-500); color: var(--white);
+  font-size: 0.68rem; display: grid; place-items: center;
+}
+.chain-arrow { color: var(--cyan-500); flex-shrink: 0; display: grid; place-items: center; }
+.section--blue .chain-step { background: rgba(255,255,255,0.08); color: var(--white); border-color: rgba(255,255,255,0.16); box-shadow: none; }
+.section--blue .chain-arrow { color: var(--cyan-300); }
+@media (max-width: 700px) {
+  .chain { flex-direction: column; align-items: stretch; }
+  .chain-step { justify-content: flex-start; }
+  .chain-arrow { transform: rotate(90deg); margin: -2px auto; }
+}
+
+/* ------------------------------------------- Processus numéroté (§9.2) ------
+   Variante « carte » de la timeline : chaque étape est une carte autonome, ce
+   qui tient mieux sur 7 étapes que la timeline filaire de la base. */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; counter-reset: step; }
+.step-card {
+  background: var(--white); border-radius: var(--radius); padding: 26px 24px 24px;
+  border: 1px solid rgba(27,74,143,0.06); box-shadow: var(--shadow-sm);
+  position: relative; overflow: hidden;
+}
+.step-card::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: linear-gradient(180deg, var(--cyan-500), var(--blue-700));
+}
+.step-n {
+  display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px;
+  background: linear-gradient(135deg, var(--blue-700), var(--cyan-500));
+  color: var(--white); font-family: var(--font-display); font-weight: 700;
+  font-size: 1rem; margin-bottom: 15px;
+}
+.step-card h3 { font-size: 1.06rem; color: var(--blue-900); margin-bottom: 7px; }
+.step-card p { color: var(--ink-600); font-size: 0.94rem; }
+
+/* ------------------------------------------------------- Pastilles config --- */
+.pills { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.pill {
+  font-family: var(--font-display); font-weight: 700; font-size: 1.05rem;
+  padding: 9px 20px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--blue-700), var(--blue-600));
+  color: var(--white); box-shadow: var(--shadow-sm);
+}
+.pills-note { color: var(--ink-400); font-size: 0.92rem; }
+
+/* ------------------------------------------------- Encart d'avertissement ---
+   Sert notamment à la mention obligatoire du §9.2 (étude préliminaire). */
+.notice {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: var(--steel-100); border-left: 3px solid var(--cyan-500);
+  border-radius: var(--radius-sm); padding: 18px 20px;
+  color: var(--ink-600); font-size: 0.93rem; line-height: 1.65;
+}
+.notice .notice-ic { color: var(--cyan-600); flex-shrink: 0; margin-top: 1px; }
+.notice--onDark { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.82); border-left-color: var(--cyan-300); }
+.notice--onDark .notice-ic { color: var(--cyan-300); }
+
+/* --------------------------------------------------- Liste à puces cochées --
+   Variante compacte de .check-list, sur deux colonnes quand la place le permet. */
+.tick-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px 26px; }
+.tick-grid li { display: flex; align-items: flex-start; gap: 10px; color: var(--ink-900); font-size: 0.97rem; }
+.tick-grid .tick { width: 22px; height: 22px; border-radius: 50%; background: rgba(17,136,204,0.14); color: var(--cyan-600); display: grid; place-items: center; flex-shrink: 0; margin-top: 1px; }
+.tick-grid--onDark li { color: rgba(255,255,255,0.85); }
+.tick-grid--onDark .tick { background: rgba(255,255,255,0.14); color: var(--cyan-300); }
+
+/* ------------------------------------------------ Réalisations : filtres ---- */
+.filters { display: flex; flex-wrap: wrap; gap: 9px; justify-content: center; margin-bottom: 34px; }
+.filter-btn {
+  font-family: var(--font-display); font-weight: 600; font-size: 0.9rem;
+  padding: 9px 18px; border-radius: 999px; cursor: pointer;
+  background: var(--white); color: var(--ink-600);
+  border: 1.5px solid var(--steel-200); transition: 0.15s;
+}
+.filter-btn:hover { border-color: var(--blue-600); color: var(--blue-700); }
+.filter-btn.is-active { background: var(--blue-700); border-color: var(--blue-700); color: var(--white); }
+
+/* ------------------------------------------ Réalisations : grille de fiches - */
+.proj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+.proj-card {
+  background: var(--white); border-radius: var(--radius); overflow: hidden;
+  border: 1px solid rgba(27,74,143,0.06); box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex; flex-direction: column;
+}
+.proj-card:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+.proj-visual { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: linear-gradient(135deg, var(--blue-800), var(--blue-600)); }
+.proj-visual img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.45s ease; }
+.proj-card:hover .proj-visual img { transform: scale(1.05); }
+.proj-visual .badge { position: absolute; left: 13px; top: 13px; z-index: 2; }
+.proj-count { position: absolute; right: 13px; bottom: 13px; z-index: 2; display: inline-flex; align-items: center; gap: 6px; background: rgba(10,35,66,0.72); color: var(--white); font-size: 0.78rem; font-weight: 600; padding: 5px 10px; border-radius: 999px; backdrop-filter: blur(4px); }
+.proj-body { padding: 22px 24px 24px; display: flex; flex-direction: column; flex: 1; }
+.proj-body h3 { font-size: 1.14rem; color: var(--blue-900); margin-bottom: 8px; }
+.proj-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--ink-400); font-size: 0.86rem; margin-bottom: 12px; }
+.proj-meta span { display: inline-flex; align-items: center; gap: 5px; }
+.proj-body p { color: var(--ink-600); font-size: 0.94rem; flex: 1; }
+.proj-more { display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; color: var(--blue-700); }
+.proj-card:hover .proj-more { gap: 9px; color: var(--cyan-600); }
+
+/* Fiche projet : tableau de caractéristiques */
+.spec-list { display: grid; gap: 0; margin: 0; }
+.spec-row { display: grid; grid-template-columns: 200px 1fr; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--steel-200); }
+.spec-row dt { font-family: var(--font-display); font-weight: 600; font-size: 0.88rem; color: var(--ink-400); }
+.spec-row dd { margin: 0; color: var(--ink-900); font-size: 0.98rem; }
+@media (max-width: 560px) { .spec-row { grid-template-columns: 1fr; gap: 3px; } }
+
+/* -------------------------------------------------- Galerie + visionneuse --- */
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.gallery-item { position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); overflow: hidden; cursor: zoom-in; background: var(--steel-100); border: none; padding: 0; display: block; }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.gallery-item:hover img { transform: scale(1.06); }
+.gallery-item:focus-visible { outline: 3px solid var(--cyan-500); outline-offset: 2px; }
+
+.lightbox { position: fixed; inset: 0; z-index: 200; background: rgba(10,35,66,0.94); display: grid; place-items: center; padding: 24px; }
+.lightbox img { max-width: min(1100px, 92vw); max-height: 84vh; width: auto; height: auto; border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); }
+.lightbox-close, .lightbox-nav {
+  position: absolute; display: grid; place-items: center; cursor: pointer;
+  background: rgba(255,255,255,0.12); color: var(--white);
+  border: none; border-radius: 50%; width: 46px; height: 46px; transition: background 0.15s;
+}
+.lightbox-close:hover, .lightbox-nav:hover { background: rgba(255,255,255,0.25); }
+.lightbox-close { top: 20px; right: 20px; }
+.lightbox-nav--prev { left: 20px; top: 50%; transform: translateY(-50%) rotate(180deg); }
+.lightbox-nav--next { right: 20px; top: 50%; transform: translateY(-50%); }
+.lightbox-caption { position: absolute; left: 0; right: 0; bottom: 22px; text-align: center; color: rgba(255,255,255,0.8); font-size: 0.9rem; padding: 0 80px; }
+@media (max-width: 560px) {
+  .lightbox-nav { width: 40px; height: 40px; }
+  .lightbox-nav--prev { left: 8px; }
+  .lightbox-nav--next { right: 8px; }
+  .lightbox-caption { padding: 0 20px; }
+}
+
+/* ------------------------------------------------------- Avant / après ------
+   Comparateur au curseur : l'image « après » est révélée par un clip-path piloté
+   par la position du curseur (variable --pos, en %). */
+.ba { position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); user-select: none; touch-action: none; --pos: 50%; }
+.ba img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ba-after { clip-path: inset(0 0 0 var(--pos)); }
+.ba-handle { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 3px; background: var(--white); box-shadow: 0 0 0 1px rgba(10,35,66,0.25); cursor: ew-resize; }
+.ba-handle::after {
+  content: ""; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 40px; height: 40px; border-radius: 50%; background: var(--white);
+  box-shadow: 0 4px 14px rgba(10,35,66,0.35);
+}
+.ba-label { position: absolute; bottom: 14px; font-family: var(--font-display); font-weight: 600; font-size: 0.76rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--white); background: rgba(10,35,66,0.6); padding: 5px 12px; border-radius: 999px; backdrop-filter: blur(4px); }
+.ba-label--before { left: 14px; }
+.ba-label--after { right: 14px; }
+
+/* Vidéo intégrée (§11 « vidéos ») — ratio 16/9 sans script. */
+.video-embed { position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); background: var(--blue-900); }
+.video-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ------------------------------------------------------------ État vide ----- */
+.empty-state { text-align: center; max-width: 520px; margin: 0 auto; padding: 56px 24px; }
+.empty-state .empty-ic { width: 64px; height: 64px; border-radius: 18px; background: var(--steel-100); color: var(--blue-600); display: grid; place-items: center; margin: 0 auto 20px; }
+.empty-state h3 { font-size: 1.24rem; color: var(--blue-900); margin-bottom: 10px; }
+.empty-state p { color: var(--ink-600); font-size: 0.98rem; margin-bottom: 22px; }
+
+/* ------------------------------------------------ Fiches d'opportunité ------ */
+.opp-card { background: var(--white); border-radius: var(--radius); border: 1px solid rgba(27,74,143,0.07); box-shadow: var(--shadow-sm); overflow: hidden; display: grid; grid-template-columns: 300px 1fr; }
+.opp-visual { position: relative; min-height: 220px; background: linear-gradient(135deg, var(--blue-800), var(--blue-600)); }
+.opp-visual img { width: 100%; height: 100%; object-fit: cover; }
+.opp-body { padding: 28px 30px; }
+.opp-body h3 { font-size: 1.3rem; color: var(--blue-900); margin: 12px 0 6px; }
+.opp-loc { color: var(--ink-400); font-size: 0.92rem; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 18px; }
+.opp-specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 16px; padding: 18px 0; border-top: 1px solid var(--steel-200); border-bottom: 1px solid var(--steel-200); margin-bottom: 18px; }
+.opp-spec .opp-spec-label { display: block; font-size: 0.74rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-400); margin-bottom: 4px; }
+.opp-spec .opp-spec-value { font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; color: var(--blue-800); }
+@media (max-width: 780px) { .opp-card { grid-template-columns: 1fr; } .opp-visual { min-height: 200px; } }
+
+/* ---------------------------------------------------- Formulaires (suite) --- */
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+@media (max-width: 560px) { .field-row { grid-template-columns: 1fr; } }
+.field-required { color: var(--cyan-600); }
+.field-error { display: block; margin-top: 6px; font-size: 0.85rem; color: #c0392b; }
+.field input[aria-invalid="true"], .field select[aria-invalid="true"], .field textarea[aria-invalid="true"] { border-color: #c0392b; }
+.field-hint { display: block; margin-top: 6px; font-size: 0.84rem; color: var(--ink-400); }
+
+/* Champ fichier : on masque l'input natif et on habille le <label>. */
+.file-field input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.file-drop {
+  display: flex; align-items: center; gap: 13px; cursor: pointer;
+  padding: 16px 18px; border: 1.5px dashed var(--steel-200); border-radius: var(--radius-sm);
+  background: var(--bg); color: var(--ink-600); font-size: 0.94rem; transition: 0.15s;
+}
+.file-drop:hover { border-color: var(--cyan-500); background: var(--white); }
+.file-drop .file-ic { color: var(--cyan-600); flex-shrink: 0; }
+.file-chosen { display: flex; align-items: center; gap: 10px; margin-top: 10px; font-size: 0.9rem; color: var(--blue-800); }
+.file-remove { background: none; border: none; cursor: pointer; color: var(--ink-400); display: grid; place-items: center; padding: 2px; }
+.file-remove:hover { color: #c0392b; }
+
+/* Piège à robots (§19 « protection anti-spam ») : jamais visible, jamais lu par
+   un lecteur d'écran, mais rempli par les robots qui remplissent tout. */
+.hp-field { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+.form-alert { display: flex; gap: 12px; align-items: flex-start; padding: 16px 18px; border-radius: var(--radius-sm); font-size: 0.94rem; margin-bottom: 20px; }
+.form-alert--ok { background: rgba(31,139,64,0.1); color: #1a6b34; }
+.form-alert--err { background: rgba(192,57,43,0.09); color: #a3291c; }
+.form-alert svg { flex-shrink: 0; margin-top: 1px; }
+
+.form-success { text-align: center; padding: 32px 12px; }
+.form-success .fs-ic { width: 62px; height: 62px; border-radius: 50%; background: rgba(31,139,64,0.13); color: #1f8b40; display: grid; place-items: center; margin: 0 auto 18px; }
+.form-success h3 { font-size: 1.3rem; color: var(--blue-900); margin-bottom: 10px; }
+.form-success p { color: var(--ink-600); margin-bottom: 22px; }
+
+.btn[disabled] { opacity: 0.6; cursor: not-allowed; }
+.spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.35); border-top-color: var(--white); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Carte intégrée (§13.3 « carte interactive ») */
+.map-embed { border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); aspect-ratio: 16 / 10; background: var(--steel-100); }
+.map-embed iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+/* --------------------------------------------------------- Dashboard ------- */
+.admin-shell { min-height: 100vh; background: var(--steel-100); display: grid; grid-template-columns: 248px 1fr; }
+.admin-side { background: var(--blue-900); color: rgba(255,255,255,0.75); padding: 26px 0; display: flex; flex-direction: column; }
+.admin-brand { padding: 0 24px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 18px; }
+.admin-brand img { height: 40px; width: auto; }
+.admin-brand span { display: block; margin-top: 10px; font-size: 0.72rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--cyan-300); }
+.admin-nav { display: grid; gap: 3px; padding: 0 14px; }
+.admin-nav a, .admin-nav button {
+  display: flex; align-items: center; gap: 11px; width: 100%;
+  padding: 11px 14px; border-radius: 10px; border: none; background: none; cursor: pointer;
+  font-family: var(--font-display); font-weight: 500; font-size: 0.94rem;
+  color: rgba(255,255,255,0.75); text-align: left; transition: 0.15s;
+}
+.admin-nav a:hover, .admin-nav button:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+.admin-nav a.is-active { background: var(--cyan-500); color: var(--white); }
+.admin-nav .admin-nav-spacer { margin-top: auto; }
+.admin-main { padding: 34px 38px 60px; min-width: 0; }
+.admin-head { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+.admin-head h1 { font-size: 1.6rem; color: var(--blue-900); }
+.admin-head p { color: var(--ink-400); font-size: 0.93rem; margin-top: 4px; }
+.admin-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow-sm); padding: 26px 28px; }
+.admin-card + .admin-card { margin-top: 20px; }
+
+.admin-table { width: 100%; border-collapse: collapse; }
+.admin-table th { text-align: left; font-family: var(--font-display); font-weight: 600; font-size: 0.76rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-400); padding: 0 14px 12px; border-bottom: 1px solid var(--steel-200); }
+.admin-table td { padding: 14px; border-bottom: 1px solid var(--steel-200); font-size: 0.94rem; color: var(--ink-900); vertical-align: middle; }
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tbody tr:hover { background: var(--bg); }
+.admin-thumb { width: 62px; height: 46px; border-radius: 8px; object-fit: cover; background: var(--steel-100); display: block; }
+.admin-actions { display: flex; gap: 6px; justify-content: flex-end; }
+.icon-btn { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--steel-200); background: var(--white); color: var(--ink-600); display: grid; place-items: center; cursor: pointer; transition: 0.15s; }
+.icon-btn:hover { border-color: var(--blue-600); color: var(--blue-700); }
+.icon-btn--danger:hover { border-color: #c0392b; color: #c0392b; background: rgba(192,57,43,0.06); }
+.table-scroll { overflow-x: auto; }
+
+/* Miniatures triables de la galerie d'une réalisation, côté dashboard. */
+.thumb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+.thumb { position: relative; aspect-ratio: 4 / 3; border-radius: var(--radius-sm); overflow: hidden; background: var(--steel-100); border: 1px solid var(--steel-200); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.thumb-del { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border-radius: 50%; border: none; background: rgba(10,35,66,0.72); color: var(--white); display: grid; place-items: center; cursor: pointer; }
+.thumb-del:hover { background: #c0392b; }
+
+.login-shell { min-height: 100vh; display: grid; place-items: center; background: linear-gradient(150deg, var(--blue-900), var(--blue-700)); padding: 24px; }
+.login-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); padding: 40px 36px; width: 100%; max-width: 400px; }
+.login-card img { height: 46px; width: auto; margin: 0 auto 22px; display: block; }
+.login-card h1 { font-size: 1.3rem; color: var(--blue-900); text-align: center; margin-bottom: 6px; }
+.login-card > p { text-align: center; color: var(--ink-400); font-size: 0.9rem; margin-bottom: 26px; }
+.login-card .btn { width: 100%; justify-content: center; }
+
+@media (max-width: 900px) {
+  .admin-shell { grid-template-columns: 1fr; }
+  .admin-side { flex-direction: row; align-items: center; padding: 12px 16px; overflow-x: auto; gap: 12px; }
+  .admin-brand { padding: 0 14px 0 0; margin: 0; border-bottom: none; border-right: 1px solid rgba(255,255,255,0.1); }
+  .admin-brand span { display: none; }
+  .admin-brand img { height: 30px; }
+  .admin-nav { display: flex; padding: 0; gap: 4px; }
+  .admin-nav a, .admin-nav button { white-space: nowrap; padding: 9px 12px; }
+  .admin-nav .admin-nav-spacer { margin-top: 0; margin-left: auto; }
+  .admin-main { padding: 22px 18px 48px; }
+}
+
+/* ------------------------------------------------- Verrouillage de marque ---
+   Symbole (image) + nom (texte HTML) — cf. components/Logo.js pour le pourquoi. */
+.brand { display: inline-flex; align-items: center; gap: 11px; }
+.brand-mark { flex-shrink: 0; display: block; object-fit: contain; }
+.brand-word { display: flex; flex-direction: column; line-height: 1; }
+.brand-word strong {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: 1.16rem; letter-spacing: 0.055em; color: var(--blue-900);
+  white-space: nowrap;
+}
+.brand-word > span {
+  font-family: var(--font-display); font-weight: 500;
+  font-size: 0.56rem; letter-spacing: 0.34em; text-transform: uppercase;
+  color: var(--cyan-600); margin-top: 4px;
+}
+.brand--light .brand-word strong { color: var(--white); }
+.brand--light .brand-word > span { color: var(--cyan-300); }
+@media (max-width: 560px) {
+  .brand-word strong { font-size: 1rem; }
+  .brand-word > span { font-size: 0.5rem; letter-spacing: 0.28em; }
+}

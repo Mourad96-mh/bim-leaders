@@ -1,0 +1,14 @@
+/node_modules
+/.next/
+/out/
+
+# Archive prête à téléverser sur Hostinger (régénérée depuis out/).
+/bimleaders-site.zip
+
+# Originaux photo (entrée de scripts/make-webp.mjs). Seuls les dérivés servis
+# par le site sont versionnés, dans public/img/.
+/assets-src
+
+.env*.local
+.DS_Store
+npm-debug.log*

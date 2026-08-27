@@ -1,0 +1,33 @@
+# Dépendances et sorties de build
+node_modules/
+.next/
+out/
+dist/
+
+# Archive prête à téléverser sur Hostinger (régénérée depuis site/out/)
+*.zip
+
+# Variables d'environnement — jamais dans le dépôt
+.env
+.env.local
+.env.*.local
+
+# ---------------------------------------------------------------------------
+# DOCUMENTS CLIENT — le dépôt GitHub est PUBLIC.
+# Le cahier des charges porte la mention « Document confidentiel » et l'offre de
+# service contient un devis nominatif. Ils restent en local.
+# ---------------------------------------------------------------------------
+*.pdf
+
+# Photos sources non optimisées (entrée de site/scripts/make-webp.mjs) ;
+# seuls les dérivés servis par le site sont versionnés, dans site/public/img/.
+assets-src/
+
+# Système
+.DS_Store
+Thumbs.db
+npm-debug.log*
+
+# Logo original livré par le client — la copie de travail utilisée par le build
+# est site/logo-source.jpeg.
+WhatsApp Image*.jpeg

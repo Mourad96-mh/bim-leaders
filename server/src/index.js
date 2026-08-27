@@ -1,0 +1,111 @@
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import mongoose from "mongoose";
+
+import authRoutes from "./routes/auth.js";
+import realisationsRoutes from "./routes/realisations.js";
+import leadsRoutes from "./routes/leads.js";
+import uploadsRoutes from "./routes/uploads.js";
+
+const app = express();
+
+// Render place l'application derrière un proxy : sans cette ligne, req.ip vaut
+// l'adresse du proxy pour tout le monde et la limitation de débit par IP
+// bloquerait l'ensemble des visiteurs d'un coup.
+app.set("trust proxy", 1);
+
+// ---------------------------------------------------------------- CORS -----
+// Le site (bimleaders.ma, sur Hostinger) et l'API (Render) sont sur deux
+// domaines : chaque appel du navigateur est donc cross-origin.
+// CORS_ORIGIN liste les origines autorisées, séparées par des virgules.
+// Sans variable définie, on autorise tout — pratique en développement local,
+// à NE PAS laisser tel quel en production.
+const originesAutorisees = (process.env.CORS_ORIGIN || "")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin(origine, callback) {
+      if (!originesAutorisees.length) return callback(null, true);
+      // `!origine` : requêtes sans en-tête Origin (curl, moniteur de Render,
+      // navigation directe) — elles ne présentent pas de risque CSRF puisque
+      // l'authentification passe par un en-tête, pas par un cookie.
+      if (!origine || originesAutorisees.includes(origine)) return callback(null, true);
+      return callback(new Error(`Origine non autorisée : ${origine}`));
+    },
+  })
+);
+
+// 2 Mo suffisent : les fiches réalisations sont du texte et des URLs Cloudinary.
+// Les fichiers passent par multer, pas par ce parseur.
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
+
+// Sonde de santé — sert aussi à réveiller le service Render endormi avant un
+// build du site (cf. site/scripts/sync-content.mjs).
+app.get("/", (req, res) => {
+  res.json({
+    service: "BIM LEADERS API",
+    statut: "ok",
+    base: mongoose.connection.readyState === 1 ? "connectée" : "déconnectée",
+  });
+});
+
+app.use("/api/auth", authRoutes);
+app.use("/api/realisations", realisationsRoutes);
+app.use("/api/leads", leadsRoutes);
+app.use("/api/uploads", uploadsRoutes);
+
+app.use((req, res) => res.status(404).json({ message: "Route inconnue." }));
+
+// Gestionnaire d'erreurs central. Le détail technique reste dans les journaux
+// du serveur ; le client ne reçoit qu'un message générique (§19 « absence de
+// données sensibles exposées côté client »).
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error("[API]", err);
+
+  if (err.message?.startsWith("Origine non autorisée")) {
+    return res.status(403).json({ message: "Origine non autorisée." });
+  }
+  // Clé unique violée (slug déjà pris, e-mail admin en double).
+  if (err.code === 11000) {
+    return res.status(409).json({ message: "Cette valeur existe déjà." });
+  }
+  if (err.name === "ValidationError") {
+    const errors = Object.fromEntries(
+      Object.entries(err.errors).map(([champ, e]) => [champ, e.message])
+    );
+    return res.status(422).json({ message: "Données invalides.", errors });
+  }
+  if (err.name === "CastError") {
+    return res.status(400).json({ message: "Identifiant invalide." });
+  }
+
+  return res.status(500).json({ message: "Erreur serveur." });
+});
+
+const PORT = process.env.PORT || 4000;
+
+if (!process.env.MONGODB_URI) {
+  console.error("MONGODB_URI manquant : impossible de démarrer.");
+  process.exit(1);
+}
+if (!process.env.JWT_SECRET) {
+  console.error("JWT_SECRET manquant : impossible de démarrer.");
+  process.exit(1);
+}
+
+mongoose
+  .connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log("MongoDB connecté");
+    app.listen(PORT, () => console.log(`API à l'écoute sur le port ${PORT}`));
+  })
+  .catch((err) => {
+    console.error("Connexion MongoDB impossible :", err.message);
+    process.exit(1);
+  });
