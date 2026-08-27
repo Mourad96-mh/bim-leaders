@@ -65,10 +65,10 @@ img { max-width: 100%; display: block; }
 .brand-logo { height: 52px; width: auto; display: block; flex-shrink: 0; }
 
 .main-nav { display: flex; align-items: center; gap: 4px; }
-.nav-link { font-family: var(--font-display); font-weight: 500; font-size: 0.94rem; color: var(--ink-600); padding: 9px 13px; border-radius: 9px; transition: color 0.15s, background 0.15s; }
+.nav-link { font-family: var(--font-display); font-weight: 500; font-size: 0.89rem; color: var(--ink-600); padding: 9px 9px; border-radius: 9px; transition: color 0.15s, background 0.15s; white-space: nowrap; }
 .nav-link:hover { color: var(--blue-700); background: rgba(27,74,143,0.05); }
 .nav-link.is-active { color: var(--blue-700); }
-.nav-cta { margin-left: 8px; padding: 10px 18px; }
+.nav-cta { margin-left: 6px; padding: 10px 15px; font-size: 0.88rem; }
 .header-actions { display: flex; align-items: center; gap: 12px; }
 /* Réseaux sociaux (bas de page) — cf. components/SocialLinks.js. En haut de
    page ils sont remplacés par le bouton flottant (.fab-facebook). */
@@ -341,10 +341,12 @@ img { max-width: 100%; display: block; }
   .contact-grid { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 30px; }
 }
-/* Huit entrées de menu + le CTA « Demander un devis » ne tiennent plus sur une
-   ligne sous ~1150px : on bascule sur le burger à ce seuil, plus tôt que le
-   passage des grilles en 1–2 colonnes (980px). */
-@media (max-width: 1150px) {
+/* Huit entrées de menu + le CTA « Demander un devis » réclament ~1230px une
+   fois resserrées. On bascule donc sur le burger à 1240px — plus tôt que le
+   passage des grilles en 1–2 colonnes (980px). Seuil VÉRIFIÉ à la mesure du DOM
+   par scripts/check-responsive.mjs : ne pas le baisser sans relancer le test,
+   la nav déborderait silencieusement sur les portables 1280px. */
+@media (max-width: 1240px) {
   .main-nav { position: fixed; inset: 82px 0 auto 0; flex-direction: column; align-items: stretch; background: var(--white); padding: 16px 22px 24px; gap: 4px; box-shadow: var(--shadow); transform: translateY(-140%); transition: transform 0.3s ease; border-bottom: 1px solid var(--steel-200); }
   .main-nav.is-open { transform: translateY(0); }
   .nav-link { padding: 13px 12px; border-radius: 10px; }
@@ -359,6 +361,8 @@ img { max-width: 100%; display: block; }
   .header-actions { gap: 8px; }
 }
 @media (max-width: 560px) {
+  /* Un libellé long vaut mieux sur deux lignes que débordant de l'écran. */
+  .btn { white-space: normal; text-align: center; }
   .brand-logo { height: 38px; }
   .cards { grid-template-columns: 1fr; }
   .why-grid { grid-template-columns: 1fr; }

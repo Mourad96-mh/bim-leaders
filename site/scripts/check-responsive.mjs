@@ -1,25 +1,44 @@
-// Vérifie le débordement horizontal réel (DOM, pas capture d'écran) sur chaque
-// page × chaque largeur, via CDP. Node 22 → WebSocket global, zéro dépendance.
+// Vérifie le débordement horizontal RÉEL (mesure du DOM, pas capture d'écran)
+// sur chaque page × chaque largeur, via CDP. Node 22 → WebSocket natif, zéro dépendance.
 //
 // ⚠️ Ne JAMAIS diagnostiquer un débordement depuis une capture Edge headless :
-// elle rogne ~60px à droite, exactement là où se trouvent le burger et le
-// sélecteur de langue → faux positifs garantis. On mesure le DOM.
+// elle rogne ~60px à droite, exactement là où se trouve le burger → faux
+// positifs garantis. On mesure le DOM.
 //
-// Usage (le serveur de dev doit tourner sur :3000) :
-//   1) msedge --headless --disable-gpu --remote-debugging-port=9222 \
-//        --user-data-dir=<tmp> about:blank
-//   2) node scripts/check-responsive.mjs
+// On teste l'EXPORT STATIQUE (site/out/) servi par scripts/serve-out.mjs, et non
+// le serveur de développement : c'est exactement ce qui sera livré à Hostinger,
+// et cela évite de lancer un second "next dev" qui corromprait le .next partagé
+// avec celui de l'utilisateur.
 //
-// Signale : scrollWidth > clientWidth, tout élément dépassant du viewport
-// (avec son sélecteur), et les textes qui débordent de leur conteneur.
+// Usage :
+//   1) npm run build
+//   2) node scripts/serve-out.mjs                        (port 4173)
+//   3) msedge --headless --disable-gpu --remote-debugging-port=9222
+//        --user-data-dir=<dossier temporaire> about:blank
+//   4) node scripts/check-responsive.mjs
+//
+// Signale : scrollWidth > clientWidth, tout élément dépassant du viewport (avec
+// son sélecteur), et les textes qui débordent de leur conteneur.
 const PORT = process.env.CDP_PORT || 9222;
-const BASE = "http://localhost:3000";
+const BASE = process.env.BASE_URL || "http://localhost:4173";
 
 const PAGES = [
-  "/", "/a-propos/", "/services/", "/services/construction-gros-oeuvre/",
-  "/contact/", "/en/", "/en/services/",
+  "/",
+  "/construction/",
+  "/construction/gros-oeuvre/",
+  "/construction/climatisation-desenfumage/",
+  "/bim/",
+  "/particuliers/",
+  "/investisseurs/",
+  "/investisseurs/opportunites/",
+  "/investisseurs/dossier/",
+  "/realisations/",
+  "/realisations/a-venir/",
+  "/a-propos/",
+  "/contact/",
+  "/admin/",
 ];
-const WIDTHS = [320, 360, 375, 390, 414, 480, 560, 640, 768, 820, 981, 1024, 1280, 1440, 1920];
+const WIDTHS = [320, 360, 375, 390, 414, 480, 560, 640, 768, 820, 981, 1024, 1180, 1241, 1280, 1366, 1440, 1920];
 
 const list = await (await fetch(`http://127.0.0.1:${PORT}/json/list`)).json();
 const page = list.find((t) => t.type === "page");
