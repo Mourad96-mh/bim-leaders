@@ -88,7 +88,7 @@ Le tableau de bord est sur `/admin/`.
 | `npm run build` | snapshot du contenu puis export statique dans `out/` |
 | `npm run logo` | régénère logo, favicon et symbole depuis `logo-source.jpeg` |
 | `npm run og` | régénère l'image de partage `public/og.jpg` |
-| `npm run media` | optimise `assets-src/` → `public/img/` en WebP + JPG |
+| `npm run media` | optimise `assets-src/` → `public/img/` en WebP + JPG, aux dimensions exactes attendues par le HTML |
 | `npm run check:responsive` | détecte les débordements horizontaux réels sur 15 largeurs |
 
 `check:responsive` mesure le **DOM** via CDP, pas des captures d'écran : Edge en
@@ -138,6 +138,7 @@ Supprimer l'ancien `_next` et les anciens HTML sur le serveur avant d'extraire.
 | À propos, valeurs, équipe | `site/src/content/apropos.js` |
 | Textes de la page d'accueil | `site/src/content/home.js` |
 | Champs et listes des formulaires | `site/src/content/contact.js` |
+| Crédits et licences des photos d'illustration | `site/src/content/credits.js` |
 | Palette, typographie, composants | `site/src/app/globals.css` + `patterns.css` |
 
 Les **réalisations** ne sont pas dans ces fichiers : elles vivent en base et
@@ -153,6 +154,11 @@ Ces points sont marqués `À CONFIRMER` ou `PLACEHOLDER` dans le code :
 - [ ] Coordonnées GPS exactes du siège (`company.js` → `geo`) — pilotent le JSON-LD et la carte
 - [ ] Horaires d'ouverture réels (`company.js` → `hours` / `hoursLd`)
 - [ ] Profils sociaux officiels (`company.js` → `social`, vide pour l'instant)
-- [ ] Photos de chantier réelles (aucune photo d'illustration n'est présentée comme une réalisation BIM Leaders)
+- [ ] Photos de chantier réelles à la place des photos d'illustration actuelles.
+      Le site est aujourd'hui illustré par des photos libres de Wikimedia Commons,
+      créditées sur `/credits/` : elles montrent un **métier**, jamais un chantier
+      BIM Leaders. Pour les remplacer : déposer les nouveaux fichiers dans
+      `site/assets-src/` **sous les mêmes noms**, `npm run media`, puis retirer
+      l'entrée correspondante de `site/src/content/credits.js`.
 - [ ] Premières réalisations saisies dans le tableau de bord
 - [ ] Opportunités d'investissement, si le client souhaite en publier

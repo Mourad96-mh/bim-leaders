@@ -52,19 +52,27 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Sans photo de chantier fournie par le client, le visuel de tête est
-              le symbole de la marque sur un fond « plan », plutôt qu'une photo
-              de banque d'images présentée comme un chantier BIM Leaders. */}
+          {/* Photo d'illustration, et non une réalisation BIM Leaders : le
+              cahier des charges interdit de présenter comme telle une image qui
+              n'en est pas une. Origine et licence de chaque photo : /credits/.
+              À remplacer par un vrai chantier dès que le client en fournit un —
+              il suffit de déposer le fichier dans assets-src/ sous le même nom.
+              Image du plus grand élément affiché au chargement (LCP) : chargée
+              en priorité, jamais en lazy. */}
           <Reveal className="hero-visual">
-            <div className="hero-photo tone-blue" style={{ display: "grid", placeItems: "center" }}>
-              <span className="bp-grid" aria-hidden="true" />
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/logo-mark-light.png"
-                alt=""
-                aria-hidden="true"
-                style={{ width: "46%", height: "auto", position: "relative", opacity: 0.95 }}
-              />
+            <div className="hero-photo">
+              <picture>
+                <source srcSet="/img/hero.webp" type="image/webp" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/img/hero.jpg"
+                  alt="Conducteur de travaux consultant les plans d'exécution sur un chantier"
+                  width="1400"
+                  height="875"
+                  fetchPriority="high"
+                  decoding="async"
+                />
+              </picture>
             </div>
           </Reveal>
         </div>
@@ -123,7 +131,7 @@ export default function HomePage() {
             {SERVICES.map((s) => (
               <Reveal key={s.slug} className="card card--media">
                 <Link href={`/construction/${s.slug}/`} className="card-link">
-                  <CardMedia icon={s.icon} alt={s.title} tone="blue" />
+                  <CardMedia icon={s.icon} img={s.image} alt={s.imageAlt || s.title} tone="blue" />
                   <div className="card-body">
                     <h3>{s.title}</h3>
                     <p>{s.short}</p>

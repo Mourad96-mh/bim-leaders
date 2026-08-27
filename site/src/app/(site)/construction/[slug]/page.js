@@ -71,6 +71,26 @@ export default async function ServicePage({ params }) {
       <section className="section">
         <div className="container service-detail-grid">
           <div>
+            {/* Photo d'illustration du lot — pas une réalisation BIM Leaders
+                (crédits et licences sur /credits/). */}
+            {service.image && (
+              <Reveal>
+                <figure className="service-photo">
+                  <picture>
+                    <source srcSet={`/img/${service.image}.webp`} type="image/webp" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`/img/${service.image}.jpg`}
+                      alt={service.imageAlt || service.title}
+                      width="800"
+                      height="450"
+                      decoding="async"
+                    />
+                  </picture>
+                </figure>
+              </Reveal>
+            )}
+
             <Reveal>
               <p className="service-intro">{service.intro}</p>
             </Reveal>

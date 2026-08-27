@@ -65,7 +65,7 @@ export default function ConstructionPage() {
             {SERVICES.map((s) => (
               <Reveal key={s.slug} className="card card--media">
                 <Link href={`/construction/${s.slug}/`} className="card-link">
-                  <CardMedia icon={s.icon} alt={s.title} tone="blue" />
+                  <CardMedia icon={s.icon} img={s.image} alt={s.imageAlt || s.title} tone="blue" />
                   <div className="card-body">
                     <h2 style={{ fontSize: "1.16rem", marginBottom: 10 }}>{s.title}</h2>
                     <p>{s.short}</p>

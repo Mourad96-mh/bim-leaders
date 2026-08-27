@@ -3,6 +3,11 @@
 // BIM LEADERS (§1 « Présentation de l'entreprise »), qui détaille les trois
 // familles : gros/second œuvre, lots techniques, aménagements extérieurs & VRD.
 //
+// `image` désigne un fichier de public/img/ (WebP + repli JPG, générés par
+// scripts/make-webp.mjs). Ce sont des PHOTOS D'ILLUSTRATION du métier, jamais
+// des réalisations BIM Leaders : origine et licence de chacune dans
+// content/credits.js, publiées sur /credits/.
+//
 // Ajouter un métier = ajouter un objet ici : la page /construction/, la page
 // détail /construction/<slug>/, le menu, le sitemap et le JSON-LD OfferCatalog
 // se mettent à jour tout seuls.
@@ -27,6 +32,7 @@ export const SERVICES = [
     bimValue:
       "Le modèle numérique permet de vérifier la structure avant le premier coulage : réservations, trémies et passages techniques sont anticipés au lieu d'être repris au marteau-piqueur.",
     image: "svc-gros-oeuvre",
+    imageAlt: "Ferrailleur ligaturant les armatures d'un plancher avant coulage",
     metaTitle: "Gros œuvre à Rabat — fondations, béton armé, maçonnerie",
     metaDescription:
       "BIM Leaders réalise le gros œuvre de vos projets à Rabat et partout au Maroc : terrassements, fondations, structure béton armé, maçonnerie et étanchéité. Devis gratuit.",
@@ -49,6 +55,7 @@ export const SERVICES = [
     bimValue:
       "Les quantités de revêtement, de peinture et de menuiserie sont extraites du modèle : le métré est fiable dès la préparation, ce qui limite les commandes en trop et les ruptures en cours de chantier.",
     image: "svc-second-oeuvre",
+    imageAlt: "Pose d'un carreau grand format à la ventouse sur colle peignée",
     metaTitle: "Second œuvre & finitions — revêtements, menuiserie, peinture",
     metaDescription:
       "Travaux de second œuvre par BIM Leaders : carrelage et marbre, menuiserie bois/aluminium/métallique, peinture, faux plafonds et cloisons. Rabat et tout le Maroc.",
@@ -71,6 +78,7 @@ export const SERVICES = [
     bimValue:
       "La coordination 3D confronte les réseaux électriques et hydrauliques à la structure et à la climatisation avant les travaux : les incompatibilités se règlent sur le modèle, pas sur le chantier.",
     image: "svc-electricite-plomberie",
+    imageAlt: "Électricien contrôlant un tableau de distribution au multimètre",
     metaTitle: "Électricité & plomberie du bâtiment — BIM Leaders",
     metaDescription:
       "Installation électrique et plomberie sanitaire par BIM Leaders : courants forts et faibles, tableaux, éclairage, alimentation et évacuation, plans d'exécution.",
@@ -93,6 +101,7 @@ export const SERVICES = [
     bimValue:
       "Les gaines sont les réseaux les plus encombrants d'un bâtiment. Les modéliser tôt permet de fixer les hauteurs sous faux plafond dès la conception, au lieu de les subir à la pose.",
     image: "svc-climatisation-desenfumage",
+    imageAlt: "Centrale de traitement d'air et réseau de gaines dans un local technique",
     metaTitle: "Climatisation, ventilation & désenfumage — BIM Leaders",
     metaDescription:
       "Installation de climatisation, ventilation et désenfumage par BIM Leaders : split et VRV, réseaux de gaines, systèmes de désenfumage, plans d'exécution.",
@@ -115,6 +124,7 @@ export const SERVICES = [
     bimValue:
       "Le terrain et les niveaux extérieurs sont modélisés avec le bâtiment : les raccordements de niveaux, les pentes d'évacuation et les accès se calent avant terrassement.",
     image: "svc-amenagement-exterieur",
+    imageAlt: "Pose manuelle de pavés sur une allée en cours d'aménagement",
     metaTitle: "Aménagement extérieur & abords — BIM Leaders",
     metaDescription:
       "Aménagement extérieur par BIM Leaders : accès et stationnement, pavage et dallage, clôtures et portails, espaces verts, éclairage extérieur et terrasses.",
@@ -137,6 +147,7 @@ export const SERVICES = [
     bimValue:
       "Les réseaux enterrés sont positionnés dans le modèle avec les fondations : les croisements avec les semelles et les regards sont vus avant l'ouverture des tranchées.",
     image: "svc-assainissement-voirie",
+    imageAlt: "Finisseur et compacteur posant la couche de roulement d'une voirie",
     metaTitle: "Assainissement & voirie (VRD) — BIM Leaders",
     metaDescription:
       "Travaux d'assainissement et de voirie par BIM Leaders : réseaux eaux usées et pluviales, regards et raccordements, drainage, voirie, bordures et VRD.",

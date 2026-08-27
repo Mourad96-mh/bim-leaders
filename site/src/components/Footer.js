@@ -76,6 +76,11 @@ export default function Footer() {
         <div className="footer-bottom">
           <span>
             © {year} {COMPANY.legalName} — RC {COMPANY.legal.rc} · ICE {COMPANY.legal.ice}
+            {" · "}
+            {/* Attribution des photos d'illustration : exigée par leurs licences. */}
+            <Link href="/credits/" className="footer-legal-link">
+              Crédits photo
+            </Link>
           </span>
           <SocialLinks variant="footer" />
           <span className="footer-credit">{COMPANY.slogan}</span>

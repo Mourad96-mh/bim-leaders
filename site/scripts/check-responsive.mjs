@@ -36,6 +36,7 @@ const PAGES = [
   "/realisations/a-venir/",
   "/a-propos/",
   "/contact/",
+  "/credits/",
   "/admin/",
 ];
 const WIDTHS = [320, 360, 375, 390, 414, 480, 560, 640, 768, 820, 981, 1024, 1180, 1241, 1280, 1366, 1440, 1920];
@@ -51,8 +52,17 @@ ws.onmessage = (e) => {
   const m = JSON.parse(e.data);
   if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); }
 };
-const send = (method, params = {}) =>
-  new Promise((res) => { const i = ++id; pending.set(i, res); ws.send(JSON.stringify({ id: i, method, params })); });
+// Une réponse CDP peut ne jamais arriver : si le contexte d'exécution est
+// détruit par une navigation pendant l'évaluation, la commande reste sans
+// réponse, et le script attendrait indéfiniment. Mieux vaut une ligne
+// « probe failed » qu'un blocage.
+const send = (method, params = {}, timeout = 15000) =>
+  new Promise((res) => {
+    const i = ++id;
+    const timer = setTimeout(() => { pending.delete(i); res(null); }, timeout);
+    pending.set(i, (m) => { clearTimeout(timer); res(m); });
+    ws.send(JSON.stringify({ id: i, method, params }));
+  });
 
 await send("Page.enable");
 await send("Runtime.enable");
@@ -92,8 +102,11 @@ for (const path of PAGES) {
       width: w, height: 900, deviceScaleFactor: 1, mobile: w < 768,
     });
     await send("Page.navigate", { url: BASE + path });
-    await new Promise((r) => setTimeout(r, 420));
-    const res = await evaluate(PROBE);
+    // Les pages portent désormais des photos : on laisse la mise en page se
+    // stabiliser un peu plus longtemps avant de mesurer.
+    await new Promise((r) => setTimeout(r, 700));
+    let res = await evaluate(PROBE);
+    if (!res) { await new Promise((r) => setTimeout(r, 700)); res = await evaluate(PROBE); }
     if (!res) { rows.push(`${w}: probe failed`); continue; }
     if (res.overflow > 0 || res.bad.length || res.tiny.length) {
       problems++;
