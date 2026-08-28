@@ -86,7 +86,7 @@ Le tableau de bord est sur `/admin/`.
 |---|---|
 | `npm run dev` | serveur de développement |
 | `npm run build` | snapshot du contenu puis export statique dans `out/` |
-| `npm run logo` | régénère logo, favicon et symbole depuis `logo-source.jpeg` |
+| `npm run logo` | régénère logo, favicon et symbole depuis `logo-source.png` et `logo-source-blanc.png` |
 | `npm run og` | régénère l'image de partage `public/og.jpg` |
 | `npm run media` | optimise `assets-src/` → `public/img/` en WebP + JPG, aux dimensions exactes attendues par le HTML |
 | `npm run check:responsive` | détecte les débordements horizontaux réels sur 15 largeurs |

@@ -321,23 +321,6 @@
 }
 
 /* ------------------------------------------------- Verrouillage de marque ---
-   Symbole (image) + nom (texte HTML) — cf. components/Logo.js pour le pourquoi. */
-.brand { display: inline-flex; align-items: center; gap: 11px; }
-.brand-mark { flex-shrink: 0; display: block; object-fit: contain; }
-.brand-word { display: flex; flex-direction: column; line-height: 1; }
-.brand-word strong {
-  font-family: var(--font-display); font-weight: 700;
-  font-size: 1.16rem; letter-spacing: 0.055em; color: var(--blue-900);
-  white-space: nowrap;
-}
-.brand-word > span {
-  font-family: var(--font-display); font-weight: 500;
-  font-size: 0.56rem; letter-spacing: 0.34em; text-transform: uppercase;
-  color: var(--cyan-600); margin-top: 4px;
-}
-.brand--light .brand-word strong { color: var(--white); }
-.brand--light .brand-word > span { color: var(--cyan-300); }
-@media (max-width: 560px) {
-  .brand-word strong { font-size: 1rem; }
-  .brand-word > span { font-size: 0.5rem; letter-spacing: 0.28em; }
-}
+   Le logo officiel est affiché en entier (symbole + lettrage) : une seule
+   image, deux déclinaisons de couleur — cf. components/Logo.js. */
+.brand { display: inline-flex; align-items: center; }

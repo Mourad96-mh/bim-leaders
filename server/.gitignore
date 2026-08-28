@@ -2,3 +2,7 @@
 .env
 .env.local
 npm-debug.log*
+
+# Mot de passe initial du dashboard, écrit par create-admin — à supprimer
+# une fois recopié dans votre gestionnaire de mots de passe.
+.admin-credentials.txt

@@ -61,8 +61,12 @@ img { max-width: 100%; display: block; }
 .header-inner { display: flex; align-items: center; justify-content: space-between; height: 82px; gap: 16px; }
 .brand { display: inline-flex; align-items: center; gap: 11px; }
 /* Logo officiel (image fournie par le client) : la hauteur pilote, la largeur
-   suit le ratio natif 720×168. */
-.brand-logo { height: 52px; width: auto; display: block; flex-shrink: 0; }
+   suit le ratio natif 900×310 (~2,9:1).
+   La hauteur demandée arrive de components/Logo.js par --brand-logo-h ; les
+   paliers responsives la PLAFONNENT (min()) au lieu de l'écraser, pour que le
+   pied de page garde son logo plus grand sur grand écran sans dépasser sur
+   mobile. */
+.brand-logo { height: var(--brand-logo-h, 52px); width: auto; display: block; flex-shrink: 0; }
 
 .main-nav { display: flex; align-items: center; gap: 4px; }
 .nav-link { font-family: var(--font-display); font-weight: 500; font-size: 0.89rem; color: var(--ink-600); padding: 9px 9px; border-radius: 9px; transition: color 0.15s, background 0.15s; white-space: nowrap; }
@@ -299,7 +303,6 @@ img { max-width: 100%; display: block; }
 .footer-grid { display: grid; grid-template-columns: 1.6fr 1fr 1.4fr 1.2fr; gap: 36px; padding-bottom: 40px; }
 .brand--footer { display: inline-flex; align-items: center; transition: opacity 0.18s ease; }
 .brand--footer:hover { opacity: 0.85; }
-.brand-logo--footer { height: 58px; }
 .footer-brand p { margin-top: 14px; max-width: 28em; font-size: 0.93rem; }
 .footer-areas { display: flex; align-items: flex-start; gap: 9px; color: var(--cyan-300); font-family: var(--font-display); font-weight: 600; font-size: 0.9rem; }
 .footer-areas svg { flex-shrink: 0; margin-top: 3px; }
@@ -370,13 +373,13 @@ img { max-width: 100%; display: block; }
   .site-footer { padding-bottom: 200px; }
   .stat + .stat::before { display: none; }
   .header-inner { gap: 10px; }
-  .brand-logo { height: 42px; }
+  .brand-logo { height: min(var(--brand-logo-h, 52px), 42px); }
   .header-actions { gap: 8px; }
 }
 @media (max-width: 560px) {
   /* Un libellé long vaut mieux sur deux lignes que débordant de l'écran. */
   .btn { white-space: normal; text-align: center; }
-  .brand-logo { height: 38px; }
+  .brand-logo { height: min(var(--brand-logo-h, 52px), 38px); }
   .cards { grid-template-columns: 1fr; }
   .why-grid { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: 1fr; gap: 22px; }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { COMPANY, NAV, telHref } from "@/lib/company";
+import Logo from "./Logo";
 import { SERVICES } from "@/content/services";
 import { Icon } from "./Icon";
 import SocialLinks from "./SocialLinks";
@@ -15,10 +16,7 @@ export default function Footer() {
     <footer className="site-footer">
       <div className="container footer-grid">
         <div className="footer-brand">
-          <Link href="/" className="brand brand--footer" aria-label="BIM Leaders — accueil">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-light.png" alt="BIM Leaders" className="brand-logo brand-logo--footer" />
-          </Link>
+          <Logo variant="light" className="brand--footer" height={58} />
           <p>
             {COMPANY.activity}. {COMPANY.baseline}
           </p>

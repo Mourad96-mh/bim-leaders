@@ -1,39 +1,40 @@
 import Link from "next/link";
 
-// Verrouillage de marque : le SYMBOLE du logo officiel (les arcs, extraits par
-// scripts/make-logo-assets.mjs) + le nom retypographié en HTML.
+// Logo officiel COMPLET (symbole + lettrage), tel que fourni par le client.
 //
-// POURQUOI pas l'image complète du logo : le fichier fourni par le client fait
-// 720×447, et son lettrage n'occupe qu'environ 12 % de la hauteur. Posé à 52 px
-// dans l'en-tête, « BIM LEADERS » tomberait sous 8 px de hauteur de capitale —
-// illisible sur mobile, et flou sur les écrans standard. En composant le nom en
-// texte, il reste net à toutes les tailles, sélectionnable, lisible par les
-// lecteurs d'écran, et il se recolore pour les fonds sombres sans second export.
+// POURQUOI l'image entière et non plus « symbole + nom retypographié en HTML » :
+// le premier fichier reçu était un JPEG basse définition au format 1,6:1, dont
+// le lettrage ne faisait que 12 % de la hauteur — posé à 52 px dans l'en-tête,
+// « BIM LEADERS » tombait sous 8 px de hauteur de capitale, illisible. Le lockup
+// officiel livré depuis (PNG 2024×712, ratio 2,9:1) porte un lettrage cinq fois
+// plus haut en proportion : à 52 px il reste net, et l'image est plus étroite
+// que l'ancien montage. On affiche donc la marque telle qu'elle a été dessinée.
 //
-// L'image complète (public/logo.png) reste utilisée là où la place le permet :
-// carte de connexion du dashboard et image de partage Open Graph.
-export default function Logo({ variant = "dark", className = "", size = 46 }) {
+// Les deux déclinaisons sont générées par scripts/make-logo-assets.mjs :
+// /logo.png pour les fonds clairs, /logo-light.png pour les fonds sombres.
+const RATIO = 900 / 310; // ratio natif des fichiers générés
+
+export default function Logo({ variant = "dark", className = "", height = 52 }) {
   const light = variant === "light";
   return (
     <Link
       href="/"
       className={`brand ${light ? "brand--light" : ""} ${className}`.trim()}
-      aria-label="BIM Leaders — accueil"
+      aria-label="BIM Leaders Services — accueil"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src={light ? "/logo-mark-light.png" : "/logo-mark.png"}
-        alt=""
-        aria-hidden="true"
-        className="brand-mark"
-        width={size}
-        height={size}
-        style={{ width: `${size}px`, height: `${size}px` }}
+        src={light ? "/logo-light.png" : "/logo.png"}
+        alt="BIM Leaders Services"
+        className="brand-logo"
+        // Dimensions intrinsèques : elles fixent le ratio, donc la place est
+        // réservée avant le chargement (pas de décalage sous l'en-tête collant).
+        // La hauteur AFFICHÉE reste pilotée par le CSS, qui la plafonne sur
+        // mobile — d'où la variable plutôt qu'un `height` en dur.
+        width={Math.round(height * RATIO)}
+        height={height}
+        style={{ "--brand-logo-h": `${height}px` }}
       />
-      <span className="brand-word">
-        <strong>BIM LEADERS</strong>
-        <span>Services</span>
-      </span>
     </Link>
   );
 }
