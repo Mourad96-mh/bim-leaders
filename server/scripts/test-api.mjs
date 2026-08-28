@@ -323,7 +323,11 @@ titre("8. Demandes — consultation (dashboard)");
   verifier("compteur de non-lues present", typeof r.data?.nonLues === "number", "nonLues = " + r.data?.nonLues);
   idLead = r.data?.items?.[0]?._id;
   verifier("la demande valide est bien enregistree", !!idLead);
-  verifier("l'IP de l'auteur est tracee", !!r.data?.items?.[0]?.ip);
+  // On affiche l'adresse retenue : derriere Cloudflare, c'est le seul moyen de
+  // voir d'un coup d'oeil si c'est bien le visiteur et non un relais
+  // (cf. le middleware req.clientIp dans src/index.js).
+  verifier("l'IP de l'auteur est tracee", !!r.data?.items?.[0]?.ip, "");
+  console.log("         adresse enregistree : " + r.data?.items?.[0]?.ip);
 
   r = await appel("/api/leads/" + idLead, { methode: "PUT", jeton: JETON, corps: { statut: "inconnu" } });
   verifier("statut hors liste -> 422", r.statut === 422, "recu " + r.statut);
@@ -359,8 +363,12 @@ titre("10. CORS et routes inconnues");
     verifier("origine non autorisee -> 403", r.statut === 403, "recu " + r.statut + " — CORS_ORIGIN est-il defini ?");
   }
 
-  r = await appel("/api/realisations", { origine: "http://localhost:3000" });
-  verifier("origine autorisee -> 200", r.statut === 200, "recu " + r.statut);
+  // L'origine autorisee depend de l'instance : les localhost en developpement,
+  // le domaine du site en production. D'ou la variable plutot qu'une valeur en
+  // dur, qui faisait echouer la suite contre Render.
+  const origineOk = process.env.ORIGINE_AUTORISEE || "http://localhost:3000";
+  r = await appel("/api/realisations", { origine: origineOk });
+  verifier("origine autorisee (" + origineOk + ") -> 200", r.statut === 200, "recu " + r.statut);
 
   r = await appel("/api/route-qui-nexiste-pas");
   verifier("route inconnue -> 404", r.statut === 404, "recu " + r.statut);
