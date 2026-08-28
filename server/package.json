@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "create-admin": "node src/scripts/create-admin.js"
+    "create-admin": "node src/scripts/create-admin.js",
+    "test:api": "node scripts/test-api.mjs"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
