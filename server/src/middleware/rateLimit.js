@@ -19,7 +19,9 @@ const seaux = new Map();
  */
 export default function rateLimit({ fenetreMs = 15 * 60 * 1000, max = 5, message }) {
   return (req, res, next) => {
-    const cle = `${req.baseUrl}|${req.ip}`;
+    // req.clientIp, pas req.ip : cf. le middleware dans src/index.js — sur
+    // Render, req.ip est l'adresse du noeud Cloudflare, pas celle du visiteur.
+    const cle = `${req.baseUrl}|${req.clientIp || req.ip}`;
     const maintenant = Date.now();
 
     const horodatages = (seaux.get(cle) || []).filter((t) => maintenant - t < fenetreMs);

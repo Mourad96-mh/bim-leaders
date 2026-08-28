@@ -121,7 +121,9 @@ router.post(
       await Lead.create({
         ...donnees,
         fichier,
-        ip: req.ip,
+        // Adresse RÉELLE du visiteur (cf. src/index.js) : req.ip vaudrait
+        // l'adresse d'un noeud Cloudflare, sans valeur pour la tracabilite.
+        ip: req.clientIp || req.ip,
         userAgent: (req.headers["user-agent"] || "").slice(0, 300),
       });
 

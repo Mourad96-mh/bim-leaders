@@ -31,6 +31,30 @@ const app = express();
 // l'en-tête.
 app.set("trust proxy", ["loopback", "linklocal", "uniquelocal"]);
 
+// ------------------------------------------------------- IP du visiteur ----
+// `trust proxy` ci-dessus ne suffit pas sur Render : le trafic passe d'abord
+// par Cloudflare, dont les adresses de bordure sont PUBLIQUES. Express remonte
+// X-Forwarded-For, saute bien les relais internes en 10.x, puis s'arrête sur
+// l'adresse Cloudflare et la retient. Mesuré en production : req.ip valait
+// « 162.158.22.149 » là où le visiteur était en « 196.65.168.255 ».
+//
+// Conséquence si on en restait là : la limitation de débit compterait par
+// nœud Cloudflare. Plusieurs visiteurs sans lien entre eux partageraient un
+// même seau — et un seul suffirait à faire refuser les demandes des autres.
+//
+// Cloudflare pose l'adresse réelle dans CF-Connecting-IP et ÉCRASE cet en-tête
+// à chaque requête qu'il relaie : un client ne peut donc pas le forger. Le
+// service n'étant joignable que par la bordure de Render, l'en-tête est fiable
+// ici. On retombe sur req.ip ailleurs — en local, il n'existe pas.
+//
+// C'est la SEULE source d'adresse visiteur de l'application : middleware/
+// rateLimit.js et routes/leads.js lisent req.clientIp, jamais req.ip.
+app.use((req, res, next) => {
+  const cf = req.headers["cf-connecting-ip"];
+  req.clientIp = typeof cf === "string" && cf.length <= 45 ? cf.trim() : req.ip;
+  next();
+});
+
 // ---------------------------------------------------------------- CORS -----
 // Le site (bimleaders.ma, sur Hostinger) et l'API (Render) sont sur deux
 // domaines : chaque appel du navigateur est donc cross-origin.
