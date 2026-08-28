@@ -19,6 +19,18 @@ export const metadata = {
   applicationName: COMPANY.name,
   authors: [{ name: COMPANY.legalName }],
   creator: COMPANY.legalName,
+  // Preuve de propriété du site pour Google Search Console. Next la rend en
+  // <meta name="google-site-verification">.
+  //
+  // Déclarée ICI, dans la racine, et non page par page : Google vérifie
+  // l'accueil, mais la balise doit survivre à toute page qu'il choisit de
+  // visiter. Les pages filles n'ont pas à la redéclarer — Next fusionne
+  // `verification` depuis le parent (contrairement à `openGraph`, remplacé
+  // segment par segment, cf. lib/seo.js).
+  //
+  // ⚠️ NE PAS RETIRER une fois la propriété confirmée : Google revérifie
+  // périodiquement et révoque l'accès si la balise a disparu.
+  verification: { google: "r4ARZn69epDIbacgkgm0sk7-9yNhMnKWeE1GdR7RkQE" },
 };
 
 export const viewport = { themeColor: "#1b4a8f" };
