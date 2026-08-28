@@ -348,8 +348,16 @@ titre("9. Limitation de debit");
 
 titre("10. CORS et routes inconnues");
 {
+  // Par defaut on exige un CORS restreint : c'est l'etat correct en production.
+  // CORS_OUVERT=1 pour une instance ou CORS_ORIGIN n'est pas encore defini
+  // (l'API accepte alors toutes les origines, cf. src/index.js).
   let r = await appel("/api/realisations", { origine: "https://site-pirate.example" });
-  verifier("origine non autorisee -> 403", r.statut === 403, "recu " + r.statut);
+  if (process.env.CORS_OUVERT === "1") {
+    console.log("  \x1b[33mNOTE\x1b[0m  CORS volontairement ouvert (CORS_ORIGIN non defini) -> " + r.statut);
+    verifier("l'API repond bien malgre une origine inconnue", r.statut === 200, "recu " + r.statut);
+  } else {
+    verifier("origine non autorisee -> 403", r.statut === 403, "recu " + r.statut + " — CORS_ORIGIN est-il defini ?");
+  }
 
   r = await appel("/api/realisations", { origine: "http://localhost:3000" });
   verifier("origine autorisee -> 200", r.statut === 200, "recu " + r.statut);

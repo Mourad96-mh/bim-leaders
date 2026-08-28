@@ -10,10 +10,26 @@ import uploadsRoutes from "./routes/uploads.js";
 
 const app = express();
 
-// Render place l'application derrière un proxy : sans cette ligne, req.ip vaut
-// l'adresse du proxy pour tout le monde et la limitation de débit par IP
-// bloquerait l'ensemble des visiteurs d'un coup.
-app.set("trust proxy", 1);
+// Render place l'application derrière PLUSIEURS proxys. Sans réglage, req.ip
+// vaut l'adresse du dernier relais et la limitation de débit par IP devient
+// inopérante — ou pire, met tous les visiteurs dans le même seau.
+//
+// ⚠️ NE PAS remettre `trust proxy` à un NOMBRE DE SAUTS. Mesuré en production :
+// avec `1`, req.ip valait « 10.192.18.52 » — une adresse interne de Render, pas
+// celle du visiteur. La chaîne compte plus d'un relais, et rien ne garantit que
+// leur nombre reste stable dans le temps.
+//
+// ⚠️ NE PAS mettre `true` non plus : Express prendrait alors l'entrée la plus à
+// GAUCHE de X-Forwarded-For, que le client peut fabriquer. Il suffirait d'un
+// en-tête forgé, changé à chaque requête, pour contourner la limitation.
+//
+// La liste ci-dessous désigne les plages PRIVÉES comme dignes de confiance
+// (`uniquelocal` couvre 10/8, 172.16/12 et 192.168/16). Express remonte alors
+// X-Forwarded-For de DROITE à GAUCHE et s'arrête à la première adresse non
+// privée : c'est celle qu'un relais de Render a réellement observée, donc
+// l'adresse publique du visiteur, et elle n'est pas falsifiable en préfixant
+// l'en-tête.
+app.set("trust proxy", ["loopback", "linklocal", "uniquelocal"]);
 
 // ---------------------------------------------------------------- CORS -----
 // Le site (bimleaders.ma, sur Hostinger) et l'API (Render) sont sur deux
