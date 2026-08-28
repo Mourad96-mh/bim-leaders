@@ -76,7 +76,7 @@ export const APROPOS = {
   // Offre de service §7 — le bureau d'étude interne, argument différenciant fort.
   bureauEtude: {
     title: "Un bureau d'étude interne",
-    text: "Via son bureau d'étude interne, BIM Leaders établit la synthèse des plans de l'architecte avec les plans de BET pour assurer leur complémentarité et éviter tout dysfonctionnement dans le déroulement normal des travaux. Il produit également les plans d'exécution des lots techniques et architecturaux.",
+    text: "Via son bureau d'étude interne, BIM Leaders établit la synthèse des plans de l'architecte avec les plans de BET pour assurer leur complémentarité et éviter tout dysfonctionnement dans le déroulement normal des travaux. Il produit également les plans d'exécution des lots techniques et architecturaux. Il réunit un ingénieur structure, un ingénieur électricité, un ingénieur fluides et des techniciens dessinateurs bâtiment.",
     livrables: [
       "Plans d'exécution électricité",
       "Plans d'exécution plomberie",

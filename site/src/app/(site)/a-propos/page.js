@@ -90,7 +90,7 @@ export default function AProposPage() {
           <div className="steps">
             {APROPOS.team.roles.map((r, i) => (
               <Reveal key={r.title} className="step-card">
-                <span className="step-n">{i + 1}</span>
+                <span className="step-n">{String.fromCharCode(65 + i)}</span>
                 <h3>{r.title}</h3>
                 <p>{r.text}</p>
               </Reveal>
