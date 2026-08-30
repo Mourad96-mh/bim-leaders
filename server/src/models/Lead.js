@@ -48,6 +48,15 @@ const LeadSchema = new mongoose.Schema(
       taille: Number,
     },
 
+    // Langue de la page d'où vient la demande. Sert au gérant : une demande
+    // déposée sur /en/contact/ appelle une réponse en anglais. Les demandes
+    // enregistrées avant la mise en bilingue n'ont pas ce champ, d'où le défaut.
+    langue: {
+      type: String,
+      enum: ["fr", "en"],
+      default: "fr",
+    },
+
     statut: {
       type: String,
       enum: ["nouveau", "lu", "traite"],

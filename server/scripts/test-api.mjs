@@ -272,10 +272,10 @@ let publicIdPhoto = null;
 titre("7. Demandes — depot public");
 let idLead = null;
 {
-  // (1/5) demande valide
+  // (1/5) demande valide, deposee depuis l'arbre anglais du site.
   let r = await appel("/api/leads", {
     methode: "POST",
-    corps: { nom: "Client Test", telephone: "0642485076", email: "client@example.com", message: "Projet de villa a Rabat.", type: "contact" },
+    corps: { nom: "Client Test", telephone: "0642485076", email: "client@example.com", message: "Projet de villa a Rabat.", type: "contact", langue: "en" },
   });
   verifier("demande valide -> 201", r.statut === 201, "recu " + r.statut);
 
@@ -305,12 +305,19 @@ let idLead = null;
     Object.keys(r.data?.errors || {}).join(", ")
   );
 
-  // (5/5) email invalide
+  // (5/5) email invalide, formulaire anglais.
+  // Le site etant bilingue, l'erreur doit revenir dans la langue de la page :
+  // un formulaire traduit qui repond en francais ne sert a rien.
   r = await appel("/api/leads", {
     methode: "POST",
-    corps: { nom: "Mauvais mail", telephone: "0642485076", email: "pas-un-email", message: "x" },
+    corps: { nom: "Mauvais mail", telephone: "0642485076", email: "pas-un-email", message: "x", langue: "en" },
   });
   verifier("email malforme -> 422", r.statut === 422 && !!r.data?.errors?.email, "recu " + r.statut);
+  verifier(
+    "...et l'erreur revient en anglais",
+    /look right/i.test(r.data?.errors?.email || ""),
+    r.data?.errors?.email
+  );
 }
 
 titre("8. Demandes — consultation (dashboard)");
@@ -327,6 +334,13 @@ titre("8. Demandes — consultation (dashboard)");
   // voir d'un coup d'oeil si c'est bien le visiteur et non un relais
   // (cf. le middleware req.clientIp dans src/index.js).
   verifier("l'IP de l'auteur est tracee", !!r.data?.items?.[0]?.ip, "");
+  // La langue de depot est conservee : c'est elle qui dit au gerant dans quelle
+  // langue rappeler le prospect.
+  verifier(
+    "la langue de la demande est conservee",
+    r.data?.items?.[0]?.langue === "en",
+    "langue = " + r.data?.items?.[0]?.langue
+  );
   console.log("         adresse enregistree : " + r.data?.items?.[0]?.ip);
 
   r = await appel("/api/leads/" + idLead, { methode: "PUT", jeton: JETON, corps: { statut: "inconnu" } });

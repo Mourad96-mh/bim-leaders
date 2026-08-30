@@ -4,6 +4,7 @@ import auth from "../middleware/auth.js";
 import rateLimit from "../middleware/rateLimit.js";
 import { uploadPieceJointe } from "../middleware/upload.js";
 import { uploadBuffer, supprimerFichier, cloudinaryConfigured } from "../config/cloudinary.js";
+import { m, langueDe } from "../i18n.js";
 
 const router = Router();
 
@@ -24,22 +25,25 @@ const DELAI_MINIMUM_MS = 3000;
 
 const estEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
 
-function valider(corps) {
+// Le site étant bilingue, la validation répond dans la langue de la page d'où
+// vient la demande (champ `langue`, cf. site/src/components/LeadForm.js).
+function valider(corps, langue) {
+  const msg = m(langue);
   const erreurs = {};
   const texte = (v) => (typeof v === "string" ? v.trim() : "");
 
-  if (!texte(corps.nom)) erreurs.nom = "Indiquez votre nom.";
-  else if (texte(corps.nom).length > 120) erreurs.nom = "Nom trop long.";
+  if (!texte(corps.nom)) erreurs.nom = msg.nomManquant;
+  else if (texte(corps.nom).length > 120) erreurs.nom = msg.nomTropLong;
 
-  if (!texte(corps.telephone)) erreurs.telephone = "Indiquez un numéro de téléphone.";
+  if (!texte(corps.telephone)) erreurs.telephone = msg.telephoneManquant;
   else if (!/^[\d\s+().-]{6,30}$/.test(texte(corps.telephone)))
-    erreurs.telephone = "Ce numéro de téléphone semble incorrect.";
+    erreurs.telephone = msg.telephoneInvalide;
 
-  if (!texte(corps.email)) erreurs.email = "Indiquez votre e-mail.";
-  else if (!estEmail(texte(corps.email))) erreurs.email = "Cette adresse e-mail semble incorrecte.";
+  if (!texte(corps.email)) erreurs.email = msg.emailManquant;
+  else if (!estEmail(texte(corps.email))) erreurs.email = msg.emailInvalide;
 
-  if (!texte(corps.message)) erreurs.message = "Décrivez votre projet en quelques mots.";
-  else if (texte(corps.message).length > 5000) erreurs.message = "Message trop long.";
+  if (!texte(corps.message)) erreurs.message = msg.messageManquant;
+  else if (texte(corps.message).length > 5000) erreurs.message = msg.messageTropLong;
 
   return erreurs;
 }
@@ -62,19 +66,23 @@ router.post(
         return res.status(200).json({ ok: true });
       }
 
+      // Langue de la page d'où vient la demande : elle décide de la langue des
+      // messages ci-dessous, et elle est stockée pour que le gérant sache dans
+      // quelle langue répondre.
+      const langue = langueDe(req.body.langue);
+      const msg = m(langue);
+
       // 2) Délai de remplissage.
       const ouvertDepuis = Number(req.body.ouvertDepuis || 0);
       if (ouvertDepuis && ouvertDepuis < DELAI_MINIMUM_MS) {
-        return res.status(400).json({
-          message: "Envoi trop rapide. Vérifiez le formulaire et réessayez.",
-        });
+        return res.status(400).json({ message: msg.tropRapide });
       }
 
       // 3) Validation des champs.
-      const erreurs = valider(req.body);
+      const erreurs = valider(req.body, langue);
       if (Object.keys(erreurs).length) {
         return res.status(422).json({
-          message: "Certains champs sont incomplets ou incorrects.",
+          message: msg.champsIncorrects,
           errors: erreurs,
         });
       }
@@ -84,9 +92,7 @@ router.post(
       let fichier;
       if (req.file) {
         if (!cloudinaryConfigured) {
-          return res.status(503).json({
-            message: "L'envoi de pièces jointes est momentanément indisponible.",
-          });
+          return res.status(503).json({ message: msg.pieceJointeIndispo });
         }
         const estImage = req.file.mimetype.startsWith("image/");
         const resultat = await uploadBuffer(req.file.buffer, {
@@ -120,6 +126,7 @@ router.post(
 
       await Lead.create({
         ...donnees,
+        langue,
         fichier,
         // Adresse RÉELLE du visiteur (cf. src/index.js) : req.ip vaudrait
         // l'adresse d'un noeud Cloudflare, sans valeur pour la tracabilite.
