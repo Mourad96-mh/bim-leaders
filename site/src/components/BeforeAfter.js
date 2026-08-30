@@ -1,13 +1,15 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
+import { t } from "@/lib/ui";
 
 // Comparateur avant/après (§11 « galerie avant/après »).
 //
 // La position du curseur est portée par une variable CSS (--pos) plutôt que par
 // un re-rendu React à chaque pixel : le navigateur ne fait alors que recalculer
 // un clip-path, ce qui reste fluide au doigt sur mobile.
-export default function BeforeAfter({ avant, apres, alt = "" }) {
+export default function BeforeAfter({ avant, apres, alt = "", lang = "fr" }) {
+  const ui = t(lang).beforeAfter;
   const ref = useRef(null);
   const [pos, setPos] = useState(50);
 
@@ -54,22 +56,22 @@ export default function BeforeAfter({ avant, apres, alt = "" }) {
       style={{ "--pos": `${pos}%` }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={avant} alt={alt ? `${alt} — avant travaux` : "Avant travaux"} />
+      <img src={avant} alt={alt ? `${alt} — ${ui.beforeAlt}` : ui.before} />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="ba-after" src={apres} alt={alt ? `${alt} — après travaux` : "Après travaux"} />
+      <img className="ba-after" src={apres} alt={alt ? `${alt} — ${ui.afterAlt}` : ui.after} />
 
-      <span className="ba-label ba-label--before">Avant</span>
-      <span className="ba-label ba-label--after">Après</span>
+      <span className="ba-label ba-label--before">{ui.before}</span>
+      <span className="ba-label ba-label--after">{ui.after}</span>
 
       <div
         className="ba-handle"
         role="slider"
         tabIndex={0}
-        aria-label="Comparer avant et après"
+        aria-label={ui.compare}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(pos)}
-        aria-valuetext={`${Math.round(pos)} % de l'image après travaux masquée`}
+        aria-valuetext={ui.valueText(Math.round(pos))}
         onKeyDown={onKeyDown}
       />
     </div>

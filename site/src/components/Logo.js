@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { path } from "@/lib/i18n";
+import { t } from "@/lib/ui";
 
 // Logo officiel COMPLET (symbole + lettrage), tel que fourni par le client.
 //
@@ -12,15 +14,18 @@ import Link from "next/link";
 //
 // Les deux déclinaisons sont générées par scripts/make-logo-assets.mjs :
 // /logo.png pour les fonds clairs, /logo-light.png pour les fonds sombres.
+//
+// Le logo renvoie à l'accueil DE LA LANGUE COURANTE : depuis /en/contact/ il
+// mène à /en/, pas à la racine française.
 const RATIO = 900 / 310; // ratio natif des fichiers générés
 
-export default function Logo({ variant = "dark", className = "", height = 52 }) {
+export default function Logo({ variant = "dark", className = "", height = 52, lang = "fr" }) {
   const light = variant === "light";
   return (
     <Link
-      href="/"
+      href={path("home", lang)}
       className={`brand ${light ? "brand--light" : ""} ${className}`.trim()}
-      aria-label="BIM Leaders Services — accueil"
+      aria-label={t(lang).brand.homeAria}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

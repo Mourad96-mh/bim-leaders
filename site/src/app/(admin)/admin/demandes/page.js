@@ -109,6 +109,10 @@ export default function AdminDemandesPage() {
       ["Fourchette d'investissement", ouvert.fourchette],
       ["Collaboration souhaitée", ouvert.collaboration],
       ["Projet concerné", ouvert.projet],
+      // Langue de la page d'où vient la demande : c'est dans cette langue qu'il
+      // faut répondre. Les demandes antérieures à la mise en bilingue n'ont pas
+      // le champ — on les considère françaises, ce qu'elles étaient.
+      ["Langue du demandeur", ouvert.langue === "en" ? "Anglais" : "Français"],
       ["Reçue le", dateFr(ouvert.createdAt)],
     ].filter(([, v]) => v);
 
@@ -284,7 +288,16 @@ export default function AdminDemandesPage() {
                         {l.telephone}
                       </span>
                     </td>
-                    <td>{l.type === "investisseur" ? "Investisseur" : "Contact"}</td>
+                    <td>
+                      {l.type === "investisseur" ? "Investisseur" : "Contact"}
+                      {/* Seul l'anglais est signalé : le français est le cas
+                          courant, le marquer partout n'apprendrait rien. */}
+                      {l.langue === "en" && (
+                        <span className="badge badge--neutral" style={{ marginLeft: 8 }}>
+                          EN
+                        </span>
+                      )}
+                    </td>
                     <td>{l.typeProjet || l.projet || "—"}</td>
                     <td>{dateFr(l.createdAt)}</td>
                     <td>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { t } from "@/lib/ui";
 import { Icon } from "./Icon";
 
 // Galerie photo d'une réalisation + visionneuse plein écran (§11).
@@ -8,7 +9,8 @@ import { Icon } from "./Icon";
 // Écrite à la main plutôt qu'avec une bibliothèque : le besoin tient en une
 // centaine de lignes, et une dépendance de galerie pèse plus lourd que ça sur
 // le premier chargement (§18 « réduction des scripts inutiles »).
-export default function Gallery({ photos = [], titre = "" }) {
+export default function Gallery({ photos = [], titre = "", lang = "fr" }) {
+  const ui = t(lang);
   const [index, setIndex] = useState(null);
   const ouvert = index !== null;
 
@@ -52,7 +54,7 @@ export default function Gallery({ photos = [], titre = "" }) {
             type="button"
             className="gallery-item"
             onClick={() => setIndex(i)}
-            aria-label={`Agrandir la photo ${i + 1} sur ${photos.length}${titre ? ` — ${titre}` : ""}`}
+            aria-label={`${ui.gallery.enlarge(i + 1, photos.length)}${titre ? ` — ${titre}` : ""}`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={p.url} alt={p.alt || `${titre} — photo ${i + 1}`} loading="lazy" />
@@ -65,11 +67,11 @@ export default function Gallery({ photos = [], titre = "" }) {
           className="lightbox"
           role="dialog"
           aria-modal="true"
-          aria-label={`Photo ${index + 1} sur ${photos.length}`}
+          aria-label={ui.gallery.photoOf(index + 1, photos.length)}
           // Clic sur le fond (et non sur l'image) : ferme.
           onClick={(e) => e.target === e.currentTarget && fermer()}
         >
-          <button type="button" className="lightbox-close" onClick={fermer} aria-label="Fermer">
+          <button type="button" className="lightbox-close" onClick={fermer} aria-label={ui.gallery.close}>
             <Icon name="x" size={22} />
           </button>
 
@@ -79,7 +81,7 @@ export default function Gallery({ photos = [], titre = "" }) {
                 type="button"
                 className="lightbox-nav lightbox-nav--prev"
                 onClick={precedent}
-                aria-label="Photo précédente"
+                aria-label={ui.gallery.prev}
               >
                 <Icon name="arrow" size={20} />
               </button>
@@ -87,7 +89,7 @@ export default function Gallery({ photos = [], titre = "" }) {
                 type="button"
                 className="lightbox-nav lightbox-nav--next"
                 onClick={suivant}
-                aria-label="Photo suivante"
+                aria-label={ui.gallery.next}
               >
                 <Icon name="arrow" size={20} />
               </button>

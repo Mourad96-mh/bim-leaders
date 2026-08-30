@@ -6,8 +6,13 @@
 // le module client. Fusionner les deux casserait le build : un module marqué
 // client n'expose au serveur que des références de composants, pas des
 // fonctions appelables.
+//
+// Les projets sont saisis en français dans le dashboard et servis tels quels
+// dans les deux langues (cf. content/realisations.js). Seuls les LIBELLÉS
+// calculés ici — statut, filtre « Tous » — sont traduits.
 
 import snapshotData from "./realisations.data.json";
+import { t } from "./ui";
 
 // L'ordre est calculé ici, et non côté API, pour qu'il soit IDENTIQUE dans le
 // HTML statique et après le rafraîchissement client — sinon la grille se
@@ -31,15 +36,14 @@ export const getRealisation = (slug) => snapshot().find((r) => r.slug === slug);
 
 // Catégories de filtre (§11 « filtres par catégorie »), déduites des projets
 // existants : rien à maintenir en double quand un type de projet inédit arrive.
-export function categoriesOf(list) {
+// Les types viennent du dashboard, donc en français dans les deux langues ;
+// seule l'entrée « Tous » est traduite.
+export function categoriesOf(list, lang = "fr") {
   const types = [...new Set(list.map((r) => r.type).filter(Boolean))];
-  return ["Tous", ...types.sort((a, b) => a.localeCompare(b, "fr"))];
+  return [t(lang).projects.all, ...types.sort((a, b) => a.localeCompare(b, "fr"))];
 }
 
-export const STATUTS = [
-  { key: "realise", label: "Projet réalisé" },
-  { key: "en-cours", label: "Chantier en cours" },
-];
+export const STATUTS = ["realise", "en-cours"];
 
-export const statutLabel = (key) =>
-  STATUTS.find((s) => s.key === key)?.label || "Projet réalisé";
+export const statutLabel = (key, lang = "fr") =>
+  key === "en-cours" ? t(lang).projects.statusOngoing : t(lang).projects.statusDone;

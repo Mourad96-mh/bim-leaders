@@ -38,6 +38,26 @@ const PAGES = [
   "/contact/",
   "/credits/",
   "/admin/",
+
+  // L'arbre anglais. Il n'est PAS un simple miroir à tester par acquit de
+  // conscience : l'anglais produit des mots plus longs à certains endroits
+  // (« Apartment building construction », « Financial partner sought »), et
+  // c'est exactement le genre de chaîne qui fait déborder une carte ou un
+  // bouton là où le français passait.
+  "/en/",
+  "/en/construction/",
+  "/en/construction/structural-works/",
+  "/en/construction/hvac-smoke-extraction/",
+  "/en/bim/",
+  "/en/individuals/",
+  "/en/investors/",
+  "/en/investors/opportunities/",
+  "/en/investors/information-pack/",
+  "/en/projects/",
+  "/en/projects/a-venir/",
+  "/en/about/",
+  "/en/contact/",
+  "/en/credits/",
 ];
 const WIDTHS = [320, 360, 375, 390, 414, 480, 560, 640, 768, 820, 981, 1024, 1180, 1241, 1280, 1366, 1440, 1920];
 

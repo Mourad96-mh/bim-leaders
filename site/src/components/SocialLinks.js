@@ -1,4 +1,5 @@
 import { COMPANY } from "@/lib/company";
+import { t } from "@/lib/ui";
 import { Icon } from "./Icon";
 
 // Rangée d'icônes réseaux sociaux, alimentée par COMPANY.social — source unique
@@ -8,7 +9,7 @@ import { Icon } from "./Icon";
 // composant ne rend alors rien du tout, ce qui est préférable à des icônes
 // pointant vers des pages inexistantes. Renseigner le tableau suffit à les faire
 // apparaître dans le pied de page.
-export default function SocialLinks({ variant = "footer", size = 16, className = "" }) {
+export default function SocialLinks({ variant = "footer", size = 16, className = "", lang = "fr" }) {
   if (!COMPANY.social?.length) return null;
 
   return (
@@ -19,7 +20,7 @@ export default function SocialLinks({ variant = "footer", size = 16, className =
             href={s.url}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`Suivre BIM Leaders sur ${s.name}`}
+            aria-label={`${t(lang).social.follow} ${s.name}`}
             title={s.name}
           >
             <Icon name={s.icon} size={size} />

@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/sync-content.mjs",
+    "prebuild": "node scripts/check-i18n.mjs && node scripts/sync-content.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
     "build": "next build",
     "start": "next start",
     "media": "node scripts/make-webp.mjs",

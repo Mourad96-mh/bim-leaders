@@ -3,17 +3,26 @@
 // BIM LEADERS (§1 « Présentation de l'entreprise »), qui détaille les trois
 // familles : gros/second œuvre, lots techniques, aménagements extérieurs & VRD.
 //
-// `image` désigne un fichier de public/img/ (WebP + repli JPG, générés par
-// scripts/make-webp.mjs). Ce sont des PHOTOS D'ILLUSTRATION du métier, jamais
-// des réalisations BIM Leaders : origine et licence de chacune dans
-// content/credits.js, publiées sur /credits/.
+// SITE BILINGUE — ce fichier porte les deux versions du catalogue :
+//   • SERVICES_FR → arbre français, servi à la racine (/construction/…)
+//   • SERVICES_EN → arbre anglais, servi sous /en/ (/en/construction/…)
+// Les deux tableaux sont dans le MÊME ORDRE et partagent le champ `key`, qui est
+// l'identité stable d'un métier d'une langue à l'autre : c'est lui qui permet au
+// sélecteur de langue et aux balises hreflang de faire correspondre
+// /construction/gros-oeuvre/ et /en/construction/structural-works/.
 //
-// Ajouter un métier = ajouter un objet ici : la page /construction/, la page
-// détail /construction/<slug>/, le menu, le sitemap et le JSON-LD OfferCatalog
-// se mettent à jour tout seuls.
+// ⚠️ Ajouter un métier = ajouter UN objet DANS CHAQUE tableau, avec le même
+//    `key`. La page /construction/, la page détail, le menu, le sitemap, les
+//    alternates hreflang et le JSON-LD OfferCatalog suivent tout seuls.
+//
+// `image` désigne un fichier de public/img/ (WebP + repli JPG, générés par
+// scripts/make-webp.mjs) — commun aux deux langues, seul `imageAlt` est traduit.
+// Ce sont des PHOTOS D'ILLUSTRATION du métier, jamais des réalisations
+// BIM Leaders : origine et licence de chacune dans content/credits.js.
 
-export const SERVICES = [
+const SERVICES_FR = [
   {
+    key: "gros-oeuvre",
     slug: "gros-oeuvre",
     icon: "crane",
     title: "Gros œuvre",
@@ -38,6 +47,7 @@ export const SERVICES = [
       "BIM Leaders réalise le gros œuvre de vos projets à Rabat et partout au Maroc : terrassements, fondations, structure béton armé, maçonnerie et étanchéité. Devis gratuit.",
   },
   {
+    key: "second-oeuvre",
     slug: "second-oeuvre",
     icon: "renovate",
     title: "Second œuvre",
@@ -61,6 +71,7 @@ export const SERVICES = [
       "Travaux de second œuvre par BIM Leaders : carrelage et marbre, menuiserie bois/aluminium/métallique, peinture, faux plafonds et cloisons. Rabat et tout le Maroc.",
   },
   {
+    key: "electricite-plomberie",
     slug: "electricite-plomberie",
     icon: "bolt",
     title: "Électricité & plomberie",
@@ -84,6 +95,7 @@ export const SERVICES = [
       "Installation électrique et plomberie sanitaire par BIM Leaders : courants forts et faibles, tableaux, éclairage, alimentation et évacuation, plans d'exécution.",
   },
   {
+    key: "climatisation-desenfumage",
     slug: "climatisation-desenfumage",
     icon: "wind",
     title: "Climatisation & désenfumage",
@@ -107,6 +119,7 @@ export const SERVICES = [
       "Installation de climatisation, ventilation et désenfumage par BIM Leaders : split et VRV, réseaux de gaines, systèmes de désenfumage, plans d'exécution.",
   },
   {
+    key: "amenagement-exterieur",
     slug: "amenagement-exterieur",
     icon: "tree",
     title: "Aménagement extérieur",
@@ -130,6 +143,7 @@ export const SERVICES = [
       "Aménagement extérieur par BIM Leaders : accès et stationnement, pavage et dallage, clôtures et portails, espaces verts, éclairage extérieur et terrasses.",
   },
   {
+    key: "assainissement-voirie",
     slug: "assainissement-voirie",
     icon: "road",
     title: "Assainissement & voirie",
@@ -154,5 +168,232 @@ export const SERVICES = [
   },
 ];
 
-export const SERVICE_SLUGS = SERVICES.map((s) => s.slug);
-export const getService = (slug) => SERVICES.find((s) => s.slug === slug);
+const SERVICES_EN = [
+  {
+    key: "gros-oeuvre",
+    slug: "structural-works",
+    icon: "crane",
+    title: "Structural works",
+    short: "The frame that carries the whole project: foundations, reinforced concrete, masonry.",
+    intro:
+      "Structural works are the backbone of a building: they determine how solid it is, how long it lasts, and what is feasible in every trade that follows. BIM Leaders carries out the full scope of structural work — from earthworks to the topmost slab — on residential, commercial and industrial projects.",
+    prestations: [
+      "Earthworks and foundations",
+      "Reinforced concrete frame: footings, columns, beams, slabs",
+      "Basements, shear walls and retaining walls",
+      "Masonry and partition walls",
+      "Waterproofing of roofs, terraces and below-grade structures",
+      "On-site formwork, rebar fixing and concrete pouring",
+    ],
+    bimValue:
+      "The model lets us check the structure before the first pour: openings, shafts and service penetrations are planned in advance instead of being cut back out with a jackhammer.",
+    image: "svc-gros-oeuvre",
+    imageAlt: "Steel fixer tying slab reinforcement before the concrete pour",
+    metaTitle: "Structural works in Rabat — foundations, concrete frame, masonry",
+    metaDescription:
+      "BIM Leaders delivers the structural works on your project in Rabat and across Morocco: earthworks, foundations, reinforced concrete frame, masonry and waterproofing. Free quote.",
+  },
+  {
+    key: "second-oeuvre",
+    slug: "finishing-works",
+    icon: "renovate",
+    title: "Finishing works",
+    short: "Everything that makes a building liveable: floor and wall finishes, joinery, fit-out.",
+    intro:
+      "Finishing works turn a structure into a building you can hand over. This is the stage the end client actually sees, and where workmanship is judged to the millimetre. BIM Leaders takes on the full finishing scope and coordinates the trades against one another so the handover date holds.",
+    prestations: [
+      "Floor and wall finishes: tiling, marble, ceramic",
+      "Timber, aluminium and metal joinery",
+      "Interior and exterior painting",
+      "Suspended ceilings and decorative cladding",
+      "Partitions, linings and insulation",
+      "Light fittings and sanitary accessories",
+    ],
+    bimValue:
+      "Quantities for finishes, paint and joinery are taken straight from the model: the take-off is reliable from the planning stage, which cuts both over-ordering and mid-project shortages.",
+    image: "svc-second-oeuvre",
+    imageAlt: "Large-format tile being set with suction handles onto combed adhesive",
+    metaTitle: "Finishing works & fit-out — tiling, joinery, painting",
+    metaDescription:
+      "Finishing works by BIM Leaders: tiling and marble, timber, aluminium and metal joinery, painting, suspended ceilings and partitions. Rabat and across Morocco.",
+  },
+  {
+    key: "electricite-plomberie",
+    slug: "electrical-plumbing",
+    icon: "bolt",
+    title: "Electrical & plumbing",
+    short: "The services that feed the building, from the main board to the last outlet.",
+    intro:
+      "Electrical and plumbing are the most sensitive service packages on a project: they run through the whole structure and cross every other trade. BIM Leaders treats them as one coherent scope, from the shop drawings produced by our in-house design office through to commissioning tests.",
+    prestations: [
+      "Building electrical: power and low-current systems",
+      "Distribution boards, circuits and earthing",
+      "Interior and exterior lighting",
+      "Sanitary plumbing: supply and drainage",
+      "Hot water generation and distribution",
+      "Electrical and plumbing shop drawings",
+    ],
+    bimValue:
+      "3D coordination tests the electrical and hydraulic services against the structure and the HVAC before work starts: clashes are resolved on the model, not on site.",
+    image: "svc-electricite-plomberie",
+    imageAlt: "Electrician testing a distribution board with a multimeter",
+    metaTitle: "Building electrical & plumbing — BIM Leaders",
+    metaDescription:
+      "Electrical installation and sanitary plumbing by BIM Leaders: power and low-current systems, distribution boards, lighting, supply and drainage, shop drawings.",
+  },
+  {
+    key: "climatisation-desenfumage",
+    slug: "hvac-smoke-extraction",
+    icon: "wind",
+    title: "HVAC & smoke extraction",
+    short: "Thermal comfort, fresh air and fire safety.",
+    intro:
+      "Air conditioning, ventilation and smoke extraction govern both occupant comfort and the building's compliance with fire safety requirements. BIM Leaders installs these systems and produces the matching shop drawings through its in-house design office.",
+    prestations: [
+      "Air conditioning: split, ducted, VRV/VRF",
+      "Mechanical ventilation and fresh air supply",
+      "Ductwork and air distribution",
+      "Smoke extraction systems",
+      "HVAC and smoke extraction shop drawings",
+      "Commissioning and balancing",
+    ],
+    bimValue:
+      "Ducts are the bulkiest services in a building. Modelling them early fixes ceiling voids at design stage, instead of leaving them to be discovered at installation.",
+    image: "svc-climatisation-desenfumage",
+    imageAlt: "Air handling unit and ductwork in a plant room",
+    metaTitle: "Air conditioning, ventilation & smoke extraction — BIM Leaders",
+    metaDescription:
+      "Air conditioning, ventilation and smoke extraction by BIM Leaders: split and VRV systems, ductwork, smoke extraction systems and shop drawings.",
+  },
+  {
+    key: "amenagement-exterieur",
+    slug: "landscaping",
+    icon: "tree",
+    title: "External works & landscaping",
+    short: "The grounds around the building: access, paving, planting, boundary walls.",
+    intro:
+      "External works set the first impression of a project and shape how it is used day to day. BIM Leaders treats the surroundings as part of the building itself: access, parking, paving, boundaries and planted areas are designed to the same standard as the structure.",
+    prestations: [
+      "Access roads, driveways and parking",
+      "External paving: block paving, flagstones, exposed aggregate concrete",
+      "Fencing, gates and boundary walls",
+      "Green areas and planting",
+      "External lighting and street furniture",
+      "Terraces, external stairs and steps",
+    ],
+    bimValue:
+      "The site and its external levels are modelled together with the building: level transitions, drainage falls and access points are resolved before earthworks begin.",
+    image: "svc-amenagement-exterieur",
+    imageAlt: "Paving blocks being laid by hand on a driveway under construction",
+    metaTitle: "External works & landscaping — BIM Leaders",
+    metaDescription:
+      "External works by BIM Leaders: access and parking, block paving and flagstones, fencing and gates, planting, external lighting and terraces.",
+  },
+  {
+    key: "assainissement-voirie",
+    slug: "drainage-roadworks",
+    icon: "road",
+    title: "Drainage & roadworks",
+    short: "Buried services and road construction: infrastructure works in full.",
+    intro:
+      "Drainage and roadworks are the invisible base of a project. Done badly, they come back to haunt the client years later. BIM Leaders carries out infrastructure works from service drawings coordinated with the structure and the building services.",
+    prestations: [
+      "Foul and storm water drainage networks",
+      "Manholes, connection chambers and service connections",
+      "Land drainage and surface water disposal",
+      "Roadworks: capping, base and wearing courses",
+      "Kerbs, channels and footways",
+      "Buried utility networks",
+    ],
+    bimValue:
+      "Buried services are positioned in the model alongside the foundations: crossings with footings and manholes are seen before a single trench is opened.",
+    image: "svc-assainissement-voirie",
+    imageAlt: "Paver and roller laying the wearing course of a road",
+    metaTitle: "Drainage & roadworks — BIM Leaders",
+    metaDescription:
+      "Drainage and roadworks by BIM Leaders: foul and storm water networks, manholes and connections, land drainage, road construction, kerbs and buried utilities.",
+  },
+];
+
+// ---------------------------------------------------------------------------
+// L'HABILLAGE de la rubrique : ce qui entoure le catalogue sur /construction/
+// et sur la fiche d'un métier. Séparé des six objets ci-dessus parce qu'il ne
+// décrit aucun métier en particulier — et parce qu'un métier ajouté ne doit
+// obliger à toucher à rien de tout cela.
+// ---------------------------------------------------------------------------
+const PAGE_FR = {
+  eyebrow: "Notre cœur de métier",
+  title: "Construction & services",
+  text: "La construction est l'activité principale de BIM Leaders. Du terrassement aux finitions, nous intervenons sur l'ensemble des corps d'état — et nous en assurons la coordination, ce qui vous donne un seul interlocuteur responsable du résultat.",
+  lead: "Nos équipes interviennent sur des projets résidentiels, commerciaux et industriels. Chaque lot s'appuie sur les plans d'exécution produits par notre bureau d'étude interne, et sur un modèle BIM qui confronte les corps d'état entre eux avant le démarrage des travaux.",
+
+  // Nom de la liste de services en données structurées (schema.org ItemList).
+  ldName: "Domaines d'intervention de BIM Leaders",
+
+  finalCta: {
+    title: "Un projet à chiffrer ?",
+    text: "Décrivez-nous votre projet : nous revenons vers vous avec une première lecture technique et un ordre de grandeur budgétaire.",
+    cta: "Demander un devis",
+  },
+
+  metaTitle: "Construction & services — nos 6 métiers",
+  metaDescription:
+    "Gros œuvre, second œuvre, électricité & plomberie, climatisation & désenfumage, aménagement extérieur, assainissement & voirie. BIM Leaders prend en charge tous les corps d'état à Rabat et au Maroc.",
+
+  // Fiche d'un métier.
+  detail: {
+    prestations: "Nos prestations",
+    bimTitle: "Ce que le BIM change sur ce lot",
+    asideTitle: "Parlons de votre projet",
+    asideText:
+      "Un devis pour ce lot, ou pour l'ensemble des travaux ? Décrivez-nous votre projet, nous vous répondons rapidement.",
+    others: "Nos autres métiers",
+    // Préfixe du catalogue d'offres JSON-LD : « Prestations — Gros œuvre ».
+    offerCatalog: (title) => `Prestations — ${title}`,
+  },
+};
+
+const PAGE_EN = {
+  eyebrow: "Our core business",
+  title: "Construction & services",
+  text: "Construction is what BIM Leaders does first and foremost. From earthworks to final finishes we take on every trade — and we coordinate them, which leaves you with a single party answerable for the result.",
+  lead: "Our teams work on residential, commercial and industrial projects. Every package is built from shop drawings produced by our in-house design office, and from a BIM model that tests the trades against one another before work starts on site.",
+
+  ldName: "What BIM Leaders builds",
+
+  finalCta: {
+    title: "A project to price?",
+    text: "Tell us about your project and we will come back to you with an initial technical read and a budget order of magnitude.",
+    cta: "Request a quote",
+  },
+
+  metaTitle: "Construction & services — our 6 trades",
+  metaDescription:
+    "Structural works, finishing works, electrical & plumbing, HVAC & smoke extraction, external works, drainage & roadworks. BIM Leaders takes on every trade in Rabat and across Morocco.",
+
+  detail: {
+    prestations: "What we do",
+    bimTitle: "What BIM changes on this package",
+    asideTitle: "Tell us about your project",
+    asideText:
+      "A quote for this package, or for the works as a whole? Describe your project and we will get back to you quickly.",
+    others: "Our other trades",
+    offerCatalog: (title) => `Services — ${title}`,
+  },
+};
+
+const BY_LOCALE = { fr: SERVICES_FR, en: SERVICES_EN };
+const PAGE_BY_LOCALE = { fr: PAGE_FR, en: PAGE_EN };
+
+/** Habillage éditorial de la rubrique Construction (hors catalogue). */
+export const getConstructionPage = (lang = "fr") => PAGE_BY_LOCALE[lang] || PAGE_FR;
+
+export const getServices = (lang = "fr") => BY_LOCALE[lang] || SERVICES_FR;
+export const getService = (slug, lang = "fr") => getServices(lang).find((s) => s.slug === slug);
+export const serviceSlugs = (lang = "fr") => getServices(lang).map((s) => s.slug);
+
+// Passerelles entre langues : utilisées par le sélecteur de langue et par les
+// alternates hreflang, qui doivent pointer d'un slug vers son équivalent.
+export const serviceKeyBySlug = (slug, lang = "fr") => getService(slug, lang)?.key;
+export const serviceSlugByKey = (key, lang = "fr") =>
+  getServices(lang).find((s) => s.key === key)?.slug;

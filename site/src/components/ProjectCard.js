@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { projectPath } from "@/lib/i18n";
+import { t } from "@/lib/ui";
 import { Icon } from "./Icon";
 import { statutLabel } from "@/lib/realisations";
 
@@ -6,16 +8,20 @@ import { statutLabel } from "@/lib/realisations";
 // principales »). Les photos viennent de Cloudinary via le dashboard : elles
 // sont donc déjà dimensionnées côté service, d'où le <img> simple plutôt que
 // next/image (inopérant en export statique de toute façon).
-export default function ProjectCard({ projet }) {
+//
+// Le nom, le lieu et la description du projet sont ceux saisis par le gérant,
+// donc en français dans les deux langues (cf. content/realisations.js) ; le
+// statut et le lien, eux, suivent la langue de la page.
+export default function ProjectCard({ projet, lang = "fr" }) {
   const cover = projet.photos?.[0];
   const enCours = projet.statut === "en-cours";
 
   return (
     <article className="proj-card">
-      <Link href={`/realisations/${projet.slug}/`} style={{ display: "contents" }}>
+      <Link href={projectPath(projet.slug, lang)} style={{ display: "contents" }}>
         <div className="proj-visual">
           <span className={`badge ${enCours ? "badge--warn" : "badge--ok"}`}>
-            {statutLabel(projet.statut)}
+            {statutLabel(projet.statut, lang)}
           </span>
           {cover ? (
             /* eslint-disable-next-line @next/next/no-img-element */
@@ -55,7 +61,7 @@ export default function ProjectCard({ projet }) {
           </div>
           {projet.description && <p>{projet.description}</p>}
           <span className="proj-more">
-            Voir le projet
+            {t(lang).projects.see}
             <Icon name="arrow" size={15} />
           </span>
         </div>

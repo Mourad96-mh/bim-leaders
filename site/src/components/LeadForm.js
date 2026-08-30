@@ -3,23 +3,38 @@
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { submitLead } from "@/lib/api";
-import { CONTACT, TYPES_CLIENT, TYPES_PROJET, BUDGETS } from "@/content/contact";
 import {
-  TYPES_COLLABORATION,
-  FOURCHETTES_INVESTISSEMENT,
-} from "@/content/investisseurs";
+  getContact,
+  getDossierForm,
+  options,
+  TYPES_CLIENT,
+  TYPES_PROJET,
+  BUDGETS,
+  UPLOAD,
+} from "@/content/contact";
+import { TYPES_COLLABORATION, FOURCHETTES_INVESTISSEMENT } from "@/content/investisseurs";
+import { t } from "@/lib/ui";
 import { Icon } from "./Icon";
 
 // Formulaire de demande, dans ses deux variantes :
-//   kind="contact"    → §13.1 (9 champs + pièce jointe)
+//   kind="contact"      → §13.1 (9 champs + pièce jointe)
 //   kind="investisseur" → §10 bis.5 (dossier investisseur)
 //
 // La validation ici est un CONFORT (retour immédiat), pas une sécurité : le
 // serveur revalide tout (§19). Les erreurs renvoyées par l'API champ par champ
-// sont réaffichées telles quelles.
-export default function LeadForm({ kind = "contact" }) {
+// sont réaffichées telles quelles — l'API les renvoie dans la langue passée en
+// `langue`, d'où l'envoi de ce champ avec la demande.
+//
+// ⚠️ BILINGUE — ce que le visiteur VOIT est traduit ; ce qui PART vers l'API ne
+// l'est pas. Les <option> affichent `label` et envoient `value`, resté français
+// (cf. content/contact.js). Le gérant lit donc des demandes homogènes dans son
+// dashboard, qu'elles viennent de /contact/ ou de /en/contact/.
+export default function LeadForm({ kind = "contact", lang = "fr" }) {
   const isInvest = kind === "investisseur";
-  const copy = isInvest ? null : CONTACT;
+  const ui = t(lang);
+  const f = ui.form;
+  const contact = getContact(lang);
+  const dossier = getDossierForm(lang);
 
   const searchParams = useSearchParams();
   const [values, setValues] = useState({});
@@ -33,13 +48,14 @@ export default function LeadForm({ kind = "contact" }) {
   const openedAt = useRef(Date.now());
 
   // Pré-remplissage depuis les liens des pages Particuliers / Investisseurs
-  // (ex. /contact/?sujet=etude-terrain).
+  // (ex. /contact/?sujet=etude-terrain, /en/contact/?sujet=etude-terrain — le
+  // paramètre est un identifiant technique, identique dans les deux langues).
   useEffect(() => {
     const sujet = searchParams.get("sujet");
     const projet = searchParams.get("projet");
     setValues((v) => ({
       ...v,
-      ...(sujet && TYPES_PROJET.some((t) => t.value === sujet) ? { typeProjet: sujet } : {}),
+      ...(sujet && TYPES_PROJET.some((x) => x.value === sujet) ? { typeProjet: sujet } : {}),
       ...(projet ? { projet } : {}),
     }));
   }, [searchParams]);
@@ -50,18 +66,15 @@ export default function LeadForm({ kind = "contact" }) {
   };
 
   function pickFile(e) {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    if (f.size > CONTACT.upload.maxMb * 1024 * 1024) {
-      setErrors((prev) => ({
-        ...prev,
-        fichier: `Fichier trop volumineux (max ${CONTACT.upload.maxMb} Mo).`,
-      }));
+    const chosen = e.target.files?.[0];
+    if (!chosen) return;
+    if (chosen.size > UPLOAD.maxMb * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, fichier: f.errFileSize(UPLOAD.maxMb) }));
       e.target.value = "";
       return;
     }
     setErrors((prev) => ({ ...prev, fichier: undefined }));
-    setFile(f);
+    setFile(chosen);
   }
 
   function clearFile() {
@@ -71,12 +84,11 @@ export default function LeadForm({ kind = "contact" }) {
 
   function validate() {
     const e = {};
-    if (!values.nom?.trim()) e.nom = "Indiquez votre nom.";
-    if (!values.telephone?.trim()) e.telephone = "Indiquez un numéro de téléphone.";
-    if (!values.email?.trim()) e.email = "Indiquez votre e-mail.";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(values.email))
-      e.email = "Cette adresse e-mail semble incorrecte.";
-    if (!values.message?.trim()) e.message = "Décrivez votre projet en quelques mots.";
+    if (!values.nom?.trim()) e.nom = f.errName;
+    if (!values.telephone?.trim()) e.telephone = f.errPhone;
+    if (!values.email?.trim()) e.email = f.errEmail;
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(values.email)) e.email = f.errEmailFormat;
+    if (!values.message?.trim()) e.message = f.errMessage;
     return e;
   }
 
@@ -97,6 +109,9 @@ export default function LeadForm({ kind = "contact" }) {
     const fd = new FormData();
     fd.append("type", kind);
     Object.entries(values).forEach(([k, v]) => v && fd.append(k, v));
+    // Langue de la demande : elle dit au serveur dans quelle langue formuler ses
+    // messages d'erreur, et indique au gérant dans quelle langue répondre.
+    fd.append("langue", lang);
     fd.append("ouvertDepuis", String(Date.now() - openedAt.current));
     if (file) fd.append("fichier", file);
 
@@ -105,7 +120,7 @@ export default function LeadForm({ kind = "contact" }) {
       setStatus("sent");
     } catch (err) {
       if (err.fields) setErrors(err.fields);
-      setErrorMsg(err.message || CONTACT.errorText);
+      setErrorMsg(err.message || contact.errorText);
       setStatus("error");
     }
   }
@@ -117,12 +132,8 @@ export default function LeadForm({ kind = "contact" }) {
           <span className="fs-ic">
             <Icon name="check" size={30} />
           </span>
-          <h3>{isInvest ? "Demande reçue" : CONTACT.successTitle}</h3>
-          <p>
-            {isInvest
-              ? "Merci. Nous étudions votre demande et revenons vers vous pour vous transmettre le dossier investisseur."
-              : CONTACT.successText}
-          </p>
+          <h3>{isInvest ? dossier.successTitle : contact.successTitle}</h3>
+          <p>{isInvest ? dossier.successText : contact.successText}</p>
         </div>
       </div>
     );
@@ -138,7 +149,7 @@ export default function LeadForm({ kind = "contact" }) {
 
   return (
     <form className="form-card" onSubmit={onSubmit} noValidate>
-      <h2>{isInvest ? "Demander le dossier investisseur" : CONTACT.formTitle}</h2>
+      <h2>{isInvest ? dossier.title : contact.formTitle}</h2>
 
       {status === "error" && (
         <div className="form-alert form-alert--err" role="alert">
@@ -149,14 +160,14 @@ export default function LeadForm({ kind = "contact" }) {
 
       {/* Piège à robots : invisible et retiré du parcours clavier. */}
       <div className="hp-field" aria-hidden="true">
-        <label htmlFor="site-web">Ne pas remplir</label>
+        <label htmlFor="site-web">{f.honeypot}</label>
         <input id="site-web" name="siteWeb" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
       <div className="field-row">
         <div className="field">
           <label htmlFor="nom">
-            {isInvest ? "Nom / Société" : "Nom et prénom"} <span className="field-required">*</span>
+            {isInvest ? f.nameCompany : f.name} <span className="field-required">{f.required}</span>
           </label>
           <input
             id="nom"
@@ -173,7 +184,7 @@ export default function LeadForm({ kind = "contact" }) {
 
         <div className="field">
           <label htmlFor="telephone">
-            Téléphone <span className="field-required">*</span>
+            {f.phone} <span className="field-required">{f.required}</span>
           </label>
           <input
             id="telephone"
@@ -192,7 +203,7 @@ export default function LeadForm({ kind = "contact" }) {
       <div className="field-row">
         <div className="field">
           <label htmlFor="email">
-            E-mail <span className="field-required">*</span>
+            {f.email} <span className="field-required">{f.required}</span>
           </label>
           <input
             id="email"
@@ -209,7 +220,7 @@ export default function LeadForm({ kind = "contact" }) {
 
         {isInvest ? (
           <div className="field">
-            <label htmlFor="fonction">Fonction</label>
+            <label htmlFor="fonction">{f.role}</label>
             <input
               id="fonction"
               name="fonction"
@@ -220,17 +231,17 @@ export default function LeadForm({ kind = "contact" }) {
           </div>
         ) : (
           <div className="field">
-            <label htmlFor="typeClient">Type de client</label>
+            <label htmlFor="typeClient">{f.clientType}</label>
             <select
               id="typeClient"
               name="typeClient"
               value={values.typeClient || ""}
               onChange={set("typeClient")}
             >
-              <option value="">— Sélectionner —</option>
-              {TYPES_CLIENT.map((t) => (
-                <option key={t} value={t}>
-                  {t}
+              <option value="">{f.select}</option>
+              {options(TYPES_CLIENT, lang).map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
                 </option>
               ))}
             </select>
@@ -242,7 +253,7 @@ export default function LeadForm({ kind = "contact" }) {
         <>
           <div className="field-row">
             <div className="field">
-              <label htmlFor="pays">Pays</label>
+              <label htmlFor="pays">{f.country}</label>
               <input
                 id="pays"
                 name="pays"
@@ -253,12 +264,12 @@ export default function LeadForm({ kind = "contact" }) {
               />
             </div>
             <div className="field">
-              <label htmlFor="typePartenaire">Type de partenaire</label>
+              <label htmlFor="typePartenaire">{f.partnerType}</label>
               <input
                 id="typePartenaire"
                 name="typePartenaire"
                 type="text"
-                placeholder="Investisseur, fonds, promoteur…"
+                placeholder={f.partnerTypeHint}
                 value={values.typePartenaire || ""}
                 onChange={set("typePartenaire")}
               />
@@ -267,33 +278,33 @@ export default function LeadForm({ kind = "contact" }) {
 
           <div className="field-row">
             <div className="field">
-              <label htmlFor="fourchette">Fourchette d&apos;investissement</label>
+              <label htmlFor="fourchette">{f.range}</label>
               <select
                 id="fourchette"
                 name="fourchette"
                 value={values.fourchette || ""}
                 onChange={set("fourchette")}
               >
-                <option value="">— Sélectionner —</option>
-                {FOURCHETTES_INVESTISSEMENT.map((f) => (
-                  <option key={f} value={f}>
-                    {f}
+                <option value="">{f.select}</option>
+                {options(FOURCHETTES_INVESTISSEMENT, lang).map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
                   </option>
                 ))}
               </select>
             </div>
             <div className="field">
-              <label htmlFor="collaboration">Type de collaboration souhaitée</label>
+              <label htmlFor="collaboration">{f.collaboration}</label>
               <select
                 id="collaboration"
                 name="collaboration"
                 value={values.collaboration || ""}
                 onChange={set("collaboration")}
               >
-                <option value="">— Sélectionner —</option>
-                {TYPES_COLLABORATION.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
+                <option value="">{f.select}</option>
+                {options(TYPES_COLLABORATION, lang).map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
                   </option>
                 ))}
               </select>
@@ -301,12 +312,12 @@ export default function LeadForm({ kind = "contact" }) {
           </div>
 
           <div className="field">
-            <label htmlFor="secteur">Secteur d&apos;intérêt</label>
+            <label htmlFor="secteur">{f.sector}</label>
             <input
               id="secteur"
               name="secteur"
               type="text"
-              placeholder="Résidentiel, commercial, industriel…"
+              placeholder={f.sectorHint}
               value={values.secteur || ""}
               onChange={set("secteur")}
             />
@@ -316,28 +327,28 @@ export default function LeadForm({ kind = "contact" }) {
         <>
           <div className="field-row">
             <div className="field">
-              <label htmlFor="typeProjet">Type de projet</label>
+              <label htmlFor="typeProjet">{f.projectType}</label>
               <select
                 id="typeProjet"
                 name="typeProjet"
                 value={values.typeProjet || ""}
                 onChange={set("typeProjet")}
               >
-                <option value="">— Sélectionner —</option>
-                {TYPES_PROJET.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
+                <option value="">{f.select}</option>
+                {options(TYPES_PROJET, lang).map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
                   </option>
                 ))}
               </select>
             </div>
             <div className="field">
-              <label htmlFor="localisation">Localisation</label>
+              <label htmlFor="localisation">{f.location}</label>
               <input
                 id="localisation"
                 name="localisation"
                 type="text"
-                placeholder="Ville, quartier"
+                placeholder={f.locationHint}
                 value={values.localisation || ""}
                 onChange={set("localisation")}
               />
@@ -346,23 +357,23 @@ export default function LeadForm({ kind = "contact" }) {
 
           <div className="field-row">
             <div className="field">
-              <label htmlFor="surface">Surface du terrain / projet</label>
+              <label htmlFor="surface">{f.area}</label>
               <input
                 id="surface"
                 name="surface"
                 type="text"
-                placeholder="ex. 320 m²"
+                placeholder={f.areaHint}
                 value={values.surface || ""}
                 onChange={set("surface")}
               />
             </div>
             <div className="field">
-              <label htmlFor="budget">Budget indicatif</label>
+              <label htmlFor="budget">{f.budget}</label>
               <select id="budget" name="budget" value={values.budget || ""} onChange={set("budget")}>
-                <option value="">— Sélectionner —</option>
-                {BUDGETS.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
+                <option value="">{f.select}</option>
+                {options(BUDGETS, lang).map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
                   </option>
                 ))}
               </select>
@@ -373,7 +384,7 @@ export default function LeadForm({ kind = "contact" }) {
 
       <div className="field">
         <label htmlFor="message">
-          Message <span className="field-required">*</span>
+          {f.message} <span className="field-required">{f.required}</span>
         </label>
         <textarea
           id="message"
@@ -382,37 +393,38 @@ export default function LeadForm({ kind = "contact" }) {
           value={values.message || ""}
           onChange={set("message")}
           aria-invalid={invalid("message")}
-          placeholder={
-            isInvest
-              ? "Décrivez votre profil et le type de projet qui vous intéresse."
-              : "Décrivez votre projet : nature des travaux, échéance, contraintes connues…"
-          }
+          placeholder={isInvest ? f.messageHintInvest : f.messageHint}
           required
         />
         {err("message")}
       </div>
 
       <div className="field file-field">
-        <label htmlFor="fichier">Pièce jointe (facultatif)</label>
+        <label htmlFor="fichier">{f.file}</label>
         <label className="file-drop" htmlFor="fichier">
           <span className="file-ic">
             <Icon name="upload" size={22} />
           </span>
-          <span>{CONTACT.upload.hint}</span>
+          <span>{contact.uploadHint}</span>
         </label>
         <input
           id="fichier"
           name="fichier"
           type="file"
           ref={fileInput}
-          accept={CONTACT.upload.accept}
+          accept={UPLOAD.accept}
           onChange={pickFile}
         />
         {file && (
           <span className="file-chosen">
             <Icon name="check" size={15} />
-            {file.name} ({(file.size / 1024 / 1024).toFixed(1)} Mo)
-            <button type="button" className="file-remove" onClick={clearFile} aria-label="Retirer le fichier">
+            {file.name} ({(file.size / 1024 / 1024).toFixed(1)} {f.fileUnit})
+            <button
+              type="button"
+              className="file-remove"
+              onClick={clearFile}
+              aria-label={f.fileRemove}
+            >
               <Icon name="x" size={15} />
             </button>
           </span>
@@ -420,23 +432,27 @@ export default function LeadForm({ kind = "contact" }) {
         {err("fichier")}
       </div>
 
-      <button type="submit" className="btn btn-primary" disabled={status === "sending"} style={{ width: "100%", justifyContent: "center" }}>
+      <button
+        type="submit"
+        className="btn btn-primary"
+        disabled={status === "sending"}
+        style={{ width: "100%", justifyContent: "center" }}
+      >
         {status === "sending" ? (
           <>
             <span className="spinner" aria-hidden="true" />
-            Envoi en cours…
+            {f.sending}
           </>
         ) : (
           <>
-            {isInvest ? "Demander le dossier" : "Envoyer ma demande"}
+            {isInvest ? f.submitInvest : f.submit}
             <Icon name="arrow" size={17} />
           </>
         )}
       </button>
 
       <p className="field-hint" style={{ marginTop: 14 }}>
-        Les informations transmises servent uniquement à traiter votre demande et ne sont
-        communiquées à aucun tiers.
+        {f.privacy}
       </p>
     </form>
   );

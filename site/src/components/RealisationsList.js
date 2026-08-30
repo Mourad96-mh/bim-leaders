@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRealisations } from "@/lib/useRealisations";
 import { categoriesOf } from "@/lib/realisations";
+import { getRealisationsPage } from "@/content/realisations";
+import { path } from "@/lib/i18n";
+import { t } from "@/lib/ui";
 import { Icon } from "./Icon";
 import Reveal from "./Reveal";
 import ProjectCard from "./ProjectCard";
@@ -14,14 +17,17 @@ import ProjectCard from "./ProjectCard";
 // pour Google) puis sont rafraîchis côté client depuis l'API — voir
 // lib/realisations.js. Les catégories sont déduites des projets existants : rien
 // à maintenir en double quand le gérant ajoute un type de projet inédit.
-export default function RealisationsList() {
+export default function RealisationsList({ lang = "fr" }) {
   const projets = useRealisations();
-  const [filtre, setFiltre] = useState("Tous");
+  const copy = getRealisationsPage(lang);
+  const ui = t(lang);
+  const tous = ui.projects.all;
+  const [filtre, setFiltre] = useState(tous);
 
-  const categories = useMemo(() => categoriesOf(projets), [projets]);
+  const categories = useMemo(() => categoriesOf(projets, lang), [projets, lang]);
   const visibles = useMemo(
-    () => (filtre === "Tous" ? projets : projets.filter((p) => p.type === filtre)),
-    [projets, filtre]
+    () => (filtre === tous ? projets : projets.filter((p) => p.type === filtre)),
+    [projets, filtre, tous]
   );
 
   if (!projets.length) {
@@ -30,15 +36,11 @@ export default function RealisationsList() {
         <span className="empty-ic">
           <Icon name="crane" size={30} />
         </span>
-        <h3>Nos réalisations arrivent</h3>
-        <p>
-          Les projets livrés et les chantiers en cours seront publiés ici prochainement, avec
-          photos et fiches détaillées. En attendant, parlez-nous de votre projet : nous vous
-          présenterons des références comparables.
-        </p>
+        <h3>{copy.emptyTitle}</h3>
+        <p>{copy.emptyText}</p>
         <div className="cta-row cta-row--center">
-          <Link className="btn btn-primary" href="/contact/">
-            Parlons de votre projet
+          <Link className="btn btn-primary" href={path("contact", lang)}>
+            {copy.emptyCta}
             <Icon name="arrow" size={16} />
           </Link>
         </div>
@@ -68,14 +70,14 @@ export default function RealisationsList() {
       <div className="proj-grid">
         {visibles.map((p) => (
           <Reveal key={p.slug || p._id}>
-            <ProjectCard projet={p} />
+            <ProjectCard projet={p} lang={lang} />
           </Reveal>
         ))}
       </div>
 
       {visibles.length === 0 && (
         <p style={{ textAlign: "center", color: "var(--ink-400)", padding: "40px 0" }}>
-          Aucun projet dans cette catégorie pour le moment.
+          {ui.projects.emptyCategory}
         </p>
       )}
     </>
